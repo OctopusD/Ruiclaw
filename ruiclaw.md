@@ -1,0 +1,29 @@
+# RuiClaw：面向长周期复杂任务的可恢复 Agent Harness
+
+核心技术：Python、asyncio、Agent Runtime、Context Engineering、Long-term Memory、Tool Calling / MCP、Agent Evaluation、Tracing / Observability
+
+项目描述：基于 nanobot 二次开发面向长周期复杂任务的 Agent Harness，对外以 RuiClaw 品牌提供 `ruiclaw` CLI 与 WebUI，保留其多渠道接入、异步消息总线、原生工具调用与插件生态，将任务状态、上下文账本、跨会话记忆、工具执行、恢复检查点、调用成本和可复现评测统一到本地优先的任务运行时中，使 Agent 的执行过程可恢复、可解释、可度量并可安全演进。
+
+- 运行关联与审计：复用 ruiclaw 已有的异步消息调度、会话级串行锁、全局并发门和中断恢复机制，为每次实际执行增加稳定的 `run_id`；通过现有 EventSink 与 Hook，将消息接纳、上下文构建、物理模型调用、工具执行、恢复和结果投递关联到同一 Run，在不改变 Agent 执行语义的前提下形成可离线聚合的运行账本。[待实测：事件关联完整率、请求丢失/重复数、P95 延迟与追踪开销]
+- 模型调用成本：在统一 Provider observer 边界捕获每次物理请求的供应商、模型、重试、延迟、输入输出 Token、缓存读写和错误类型，通过 asyncio task-local collector 将物理请求关联到当前 Run 并落成 `provider_call_finished`；报告优先按物理请求计价，未启用 observer 的入口明确回退到逻辑模型轮次。引入带采集日期、适用范围和来源的版本化价格快照，按普通输入、缓存读取、缓存写入和输出分别计算，返回 `estimated / partial / unknown`，未知模型或缺失费率绝不按 0 美元处理。
+- 成本账本实测（2026-09-13）：内置 `openai-standard-2026-09-13-v1` 快照，首版只收录官方页面可明确核验的 OpenAI Standard 文本模型费率；使用合成固定费率的确定性测试验证 100 万输入 Token（含 20 万缓存读取、10 万缓存写入）和 10 万输出 Token 的分项结果为 2.49 美元，并验证未知模型总成本为 `null`、混合模型状态为 `partial`。重跑 RuiClaw Bench 共关联 20 次物理请求、49,321 input Token、2,211 output Token；由于 `ruiclaw-scripted` 不是付费模型，6 个任务均正确标记 `cost_unknown`，没有生成虚假的 0 美元成本。完整结果位于 `benchmarks/results/ruiclaw-bench-v1/result.json`，价格来源为 [OpenAI API Pricing](https://developers.openai.com/api/docs/pricing)。
+- 长期记忆与上下文：保留 nanobot 的会话历史、压缩检查点和 Dream 长期记忆，在其上增加本地 Working Memory；成功读取工作区文本文件后，将经过长度限制和敏感字段脱敏的短摘要写入 `.ruiclaw/memory/index.json`，并在 `entries.jsonl` 保留追加记录。后续请求按路径、标签和关键词透明打分，只向 Context 注入 Top-3 相关摘要；文件类记忆绑定 SHA-256 内容哈希，来源变化后拒绝旧摘要。Context/Run Ledger 记录候选数、命中数、过期拒绝数、召回 ID、分数、原因、来源及 Working Memory Token，但不复制记忆正文。
+- 记忆检索实测（2026-09-14，`ruiclaw-memory-v1`）：直接使用生产 `WorkingMemoryStore` 和 `ContextBuilder` 运行 6 个固定文件依赖任务及 1 个过期记忆场景，7/7 通过；相关记忆命中率和 Top-1 准确率均为 100%，文件变化后的 stale suppression 为 100%；确定性消融中 memory-on 重复读取为 0、memory-off 为 6，合计避免模拟回读 7,043 字符。该结果验证检索、注入和失效机制，不代表真实模型长对话准确率；证据保存于 `benchmarks/results/ruiclaw-memory-v1/result.json`。
+- 工具执行治理：沿用 ruiclaw 的只读、并发安全与独占属性，在真实 Tool 执行边界增加默认 4 路的有界并发和 120 秒统一外层超时；只读且显式并发安全的调用可进入同一批次，工作区写入、外部副作用、独占及未声明并发安全的未知工具保持顺序执行。工具返回顺序继续与模型提交顺序一致，超时通过 asyncio 取消并等待工具清理；Run Ledger 记录 `effect_type`、`batch_id`、排队耗时、执行耗时、超时和取消状态，但不记录工具参数及结果正文。生产级审批流不属于当前版本范围。
+- 工具治理实测（2026-09-13，`ruiclaw-tool-governance-v1`）：通过同一执行器运行 3 组确定性场景，3/3 通过；4 路读取在并发上限 2 时观察峰值为 2，耗时由 164 ms 降至 82 ms，加速 2.00x；3 次工作区写入峰值并发为 1、写冲突为 0；超时工具触发 1 次取消并完成 1 次 `finally` 清理，活动任务残留为 0。完整证据保存于 `benchmarks/results/ruiclaw-tool-governance-v1/result.json`。
+- 任务恢复：复用 ruiclaw 的精确 Runtime Checkpoint，在模型返回 Tool Call、工具执行完成和最终答案生成后持久化可恢复状态；重启后由 RecoveryCoordinator 校验 checkpoint，对不确定工具状态停止自动执行并等待人工确认，对已完成工具结果进行一次性物化，恢复执行时创建新的子 Run 并通过 `parent_run_id` 关联中断 Run，从而避免盲目重复外部副作用。Pico 式任务语义检查点保留为长周期任务的后续增强，不作为当前恢复成立的前提。
+- 恢复实测（2026-09-13，`ruiclaw-scripted/deterministic-v1`）：通过确定性 Hook 在 `awaiting_tools`、`tools_completed` 和 `final_response` 三个持久化边界注入进程中断，3/3 场景按预期恢复或安全停驻，恢复成功率 100%，父子 Run 关联率 100%，重复副作用 0；其中不确定 Tool Call 未被自动执行，已完成副作用恢复后总执行次数保持为 1，已持久化最终答案恢复时新增模型调用为 0。完整证据保存于 `benchmarks/results/ruiclaw-recovery-v1/result.json`。
+- 链路追踪：为每个 Run 生成由 `manifest.json`、`events.jsonl`、受控 artifacts 和可重建 `report.json` 组成的本地证据包，串联消息调度、上下文构建、模型请求、工具执行、记忆更新、检查点和结果投递，并对密钥、敏感参数和大体积内容进行脱敏或摘要。[待实测：Trace 完整率、追踪开销与单次任务存储量]
+- 运行分析：实现共享 Run Inspector，通过 CLI、鉴权 HTTP API 与 WebUI 查询同一份本地证据，展示运行状态、物理模型请求数、估算成本、模型与工具调用时间线、Token 消耗和 Context 来源峰值，形成从采集、聚合到可视化的可观测闭环。
+- 评测体系：参考 PicoBench 实现 RuiClaw Bench v1，以固定 JSON 任务清单、Fixture 快照、隔离工作区、脚本化 Provider、步数预算和结构化确定性 Verifier 驱动 ruiclaw 的真实 `AgentRunner`、文件工具与 Run Ledger；通过 `ruiclaw bench run` 一键生成包含运行版本、Fixture 哈希、逐任务 Run 证据和失败分类的 JSON Artifact。首版覆盖文档修改、文本编辑、非法工具参数恢复、路径越界防护、重复读取治理和证据包完整性 6 类任务；后续再增加真实模型 baseline/candidate 对照及上下文、记忆和恢复消融。
+- Bench 实测（2026-09-13，`ruiclaw-scripted/deterministic-v1`）：固定任务 6 个，完成 6 个，通过率 100%，预算内完成率 100%，Verifier 通过率 100%；共执行并关联 20 次物理模型请求，累计 51,532 Token；Fixture 快照为 `sha256:6f8b990c7a457539993a127105d75d18d01adb251dca36467e7a354df9e5daf5`，完整证据保存于 `benchmarks/results/ruiclaw-bench-v1/result.json`。脚本模型成本明确标记为 unknown；该结果验证 Harness 的确定性回归与证据链，不代表真实大模型 Coding 能力。
+- 外部评测接入：实现 RuiClaw → Youtu-Agent 评测适配器，不改动 Youtu 源码；适配器为每条样本分配隔离 workspace 与 `youtu:{experiment_id}:{sample_id}` 会话，调用真实 `RuiClaw.run()`，将最终答案、耗时和 Run Ledger（模型/工具调用、Token、错误及事件）写回 Youtu `EvaluationSample.trajectories`，复用其数据集预处理、标准答案判题与统计阶段。Youtu 负责“任务做对了吗”，RuiClaw Ledger 负责“任务如何完成、是否可审计”。
+- Youtu 小样本实测（2026-09-15，`WebWalkerQA_15`，`ruiclaw-ww15`）：15/15 条样本完成 rollout 并进入 judged，Youtu Judge 判定 12/15 正确，正确率 80.0%。所有 15 个 RuiClaw Run 均以 `succeeded` 结束；共发生 113 次模型调用（失败 0）、173 次工具调用（失败 20，成功率 88.4%）、1 次工具超时；累计 3,042,791 Token，串行累计耗时 1,916.7 秒，单题中位耗时 52.5 秒、平均 127.8 秒。3 条错误均为最终答案收束问题：未在有歧义时按上下文直接作答、枚举项不精确、缺失要求的具体日期，而非运行时失败。该实验没有注入中断，因此不以其证明恢复能力；且仅含 15 条样本、部分结果由 LLM Judge 判定，只作为真实 Agent 管线的集成与初步效果信号，不作为泛化性能结论。Run 证据位于 `benchmarks/results/youtu/workspaces/ruiclaw-ww15/`，Youtu 实验记录位于本地 `youtu-agent/test.db`。
+- 受控演进：参考 Pico 的候选隔离与封闭测试思路实现 Evolver Lite，通过生产 `WorkingMemoryStore` 与 `ContextBuilder` 在独立工作区比较 baseline/candidate 策略，并依次执行训练集、封闭集、过期记忆安全和 Context 降幅四项硬门禁；系统只生成结构化对比结果与 Markdown 报告，结论限定为 `recommended_for_manual_review` 或 `rejected`，不自动修改运行配置或发布候选。
+- 演进实测（2026-09-14，`ruiclaw-evolver-v1`）：在候选预算为 1 的确定性实验中，将 Working Memory 从 Top-K 3 调整为 Top-K 1；4 个训练任务、2 个封闭测试任务及 1 个 stale safety 场景均保持 100% 通过，Working Memory 注入量由 1,136 字符降至 490 字符，减少 56.87%，四项门禁全部通过并输出 `recommended_for_manual_review`。由于封闭集只有 2 题，报告明确标记统计置信度不足且禁止自动上线；证据保存于 `benchmarks/results/ruiclaw-evolver-v1/comparison.json` 和 `comparison.md`。
+
+## 可选项目表述
+
+- 基于 nanobot 二次开发 RuiClaw Agent Harness，构建 Run/Turn/Step 级本地账本，统一关联模型调用、工具执行、检查点与结果投递，支持任务审计、故障恢复与运行分析。
+- 设计 RuiClaw → Youtu-Agent 评测适配器，将真实 Agent 执行轨迹回写至标准化评测流程；在 WebWalkerQA_15 上完成 15/15 条端到端运行，获得 80.0% 小样本正确率，并采集 113 次模型调用与 173 次工具调用的可审计证据。
+- 实现确定性回归、工具治理、记忆检索、恢复注入与候选策略门禁评测，覆盖工具超时、重复副作用、过期记忆与上下文压缩等 Harness 风险点。

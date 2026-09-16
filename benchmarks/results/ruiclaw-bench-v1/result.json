@@ -1,0 +1,508 @@
+{
+  "benchmark": {
+    "source": "benchmarks/ruiclaw_tasks.json",
+    "task_count": 6
+  },
+  "captured_at": "2026-09-13T14:51:20.773490+00:00",
+  "failure_category_counts": {},
+  "reproducibility": {
+    "decoding": {
+      "temperature": 0.0
+    },
+    "fixture_snapshot_id": "sha256:6f8b990c7a457539993a127105d75d18d01adb251dca36467e7a354df9e5daf5",
+    "locale": "C.UTF-8",
+    "model_name": "ruiclaw-scripted",
+    "model_version": "deterministic-v1",
+    "timezone": "UTC"
+  },
+  "rows": [
+    {
+      "allowed_tools": [
+        "read_file",
+        "edit_file"
+      ],
+      "category": "documentation",
+      "expected_artifact": "README.md",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "id": "readme_intro_locked",
+      "model_calls": 3,
+      "passed": true,
+      "report": {
+        "context": {
+          "compacted_requests": 0,
+          "max_source_tokens": {
+            "session_history": 469,
+            "tool_definitions": 2053,
+            "tool_result": 325
+          },
+          "max_total_tokens": 2847,
+          "max_utilization_ratio": 0.088969,
+          "requests": 3
+        },
+        "cost": {
+          "basis": "provider_calls",
+          "breakdown": {
+            "cache_read_usd": null,
+            "cache_write_usd": null,
+            "input_usd": null,
+            "output_usd": null
+          },
+          "currency": "USD",
+          "estimated_cost_usd": null,
+          "missing_usage_calls": 0,
+          "partial_estimated_cost_usd": null,
+          "priced_model_calls": 0,
+          "pricing_captured_at": "2026-09-13",
+          "pricing_scope": "Direct OpenAI API, Standard processing, text tokens",
+          "pricing_snapshot_id": "openai-standard-2026-09-13-v1",
+          "pricing_source_url": "https://developers.openai.com/api/docs/pricing",
+          "status": "unknown",
+          "unknown_models": [
+            "ruiclaw-bench/ruiclaw-scripted"
+          ],
+          "unpriced_model_calls": 3
+        },
+        "duration_ms": 75,
+        "failed_model_calls": 0,
+        "failed_provider_calls": 0,
+        "failed_tool_calls": 0,
+        "model_calls": 3,
+        "provider_calls": 3,
+        "run_id": "34cd2d03793c460bbe74c8f5ecffd51c",
+        "schema_version": 1,
+        "status": "succeeded",
+        "stop_reason": "completed",
+        "tool_calls": 2,
+        "usage": {
+          "cache_read_tokens": null,
+          "cache_write_tokens": null,
+          "estimated_tokens": 7798,
+          "input_tokens": 7398,
+          "output_tokens": 400,
+          "reported_tokens": 0,
+          "request_count": 3,
+          "total_tokens": 7798
+        }
+      },
+      "run_dir": "readme_intro_locked/bench_repo_readme/.ruiclaw/runs/34cd2d03793c460bbe74c8f5ecffd51c",
+      "run_id": "34cd2d03793c460bbe74c8f5ecffd51c",
+      "status": "pass",
+      "step_budget": 3,
+      "stop_reason": "completed",
+      "verifier_detail": "content matched",
+      "verifier_passed": true,
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "edit_file"
+      ],
+      "category": "text-edit",
+      "expected_artifact": "sample.txt",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "id": "sample_beta_locked",
+      "model_calls": 3,
+      "passed": true,
+      "report": {
+        "context": {
+          "compacted_requests": 0,
+          "max_source_tokens": {
+            "session_history": 348,
+            "tool_definitions": 2053,
+            "tool_result": 264
+          },
+          "max_total_tokens": 2665,
+          "max_utilization_ratio": 0.083281,
+          "requests": 3
+        },
+        "cost": {
+          "basis": "provider_calls",
+          "breakdown": {
+            "cache_read_usd": null,
+            "cache_write_usd": null,
+            "input_usd": null,
+            "output_usd": null
+          },
+          "currency": "USD",
+          "estimated_cost_usd": null,
+          "missing_usage_calls": 0,
+          "partial_estimated_cost_usd": null,
+          "priced_model_calls": 0,
+          "pricing_captured_at": "2026-09-13",
+          "pricing_scope": "Direct OpenAI API, Standard processing, text tokens",
+          "pricing_snapshot_id": "openai-standard-2026-09-13-v1",
+          "pricing_source_url": "https://developers.openai.com/api/docs/pricing",
+          "status": "unknown",
+          "unknown_models": [
+            "ruiclaw-bench/ruiclaw-scripted"
+          ],
+          "unpriced_model_calls": 3
+        },
+        "duration_ms": 24,
+        "failed_model_calls": 0,
+        "failed_provider_calls": 0,
+        "failed_tool_calls": 0,
+        "model_calls": 3,
+        "provider_calls": 3,
+        "run_id": "2e58468d505048a3a8128a14a024f102",
+        "schema_version": 1,
+        "status": "succeeded",
+        "stop_reason": "completed",
+        "tool_calls": 2,
+        "usage": {
+          "cache_read_tokens": null,
+          "cache_write_tokens": null,
+          "estimated_tokens": 7403,
+          "input_tokens": 7091,
+          "output_tokens": 312,
+          "reported_tokens": 0,
+          "request_count": 3,
+          "total_tokens": 7403
+        }
+      },
+      "run_dir": "sample_beta_locked/bench_repo_patch/.ruiclaw/runs/2e58468d505048a3a8128a14a024f102",
+      "run_id": "2e58468d505048a3a8128a14a024f102",
+      "status": "pass",
+      "step_budget": 3,
+      "stop_reason": "completed",
+      "verifier_detail": "content matched",
+      "verifier_passed": true,
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "edit_file"
+      ],
+      "category": "tool-boundary",
+      "expected_artifact": "sample.txt",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "id": "invalid_edit_recovery",
+      "model_calls": 4,
+      "passed": true,
+      "report": {
+        "context": {
+          "compacted_requests": 0,
+          "max_source_tokens": {
+            "session_history": 522,
+            "tool_definitions": 2053,
+            "tool_result": 422
+          },
+          "max_total_tokens": 2997,
+          "max_utilization_ratio": 0.093656,
+          "requests": 4
+        },
+        "cost": {
+          "basis": "provider_calls",
+          "breakdown": {
+            "cache_read_usd": null,
+            "cache_write_usd": null,
+            "input_usd": null,
+            "output_usd": null
+          },
+          "currency": "USD",
+          "estimated_cost_usd": null,
+          "missing_usage_calls": 0,
+          "partial_estimated_cost_usd": null,
+          "priced_model_calls": 0,
+          "pricing_captured_at": "2026-09-13",
+          "pricing_scope": "Direct OpenAI API, Standard processing, text tokens",
+          "pricing_snapshot_id": "openai-standard-2026-09-13-v1",
+          "pricing_source_url": "https://developers.openai.com/api/docs/pricing",
+          "status": "unknown",
+          "unknown_models": [
+            "ruiclaw-bench/ruiclaw-scripted"
+          ],
+          "unpriced_model_calls": 4
+        },
+        "duration_ms": 31,
+        "failed_model_calls": 0,
+        "failed_provider_calls": 0,
+        "failed_tool_calls": 1,
+        "model_calls": 4,
+        "provider_calls": 4,
+        "run_id": "c6b46d19c9f54c469084efafe44fcc57",
+        "schema_version": 1,
+        "status": "succeeded",
+        "stop_reason": "completed",
+        "tool_calls": 3,
+        "usage": {
+          "cache_read_tokens": null,
+          "cache_write_tokens": null,
+          "estimated_tokens": 10656,
+          "input_tokens": 10189,
+          "output_tokens": 467,
+          "reported_tokens": 0,
+          "request_count": 4,
+          "total_tokens": 10656
+        }
+      },
+      "run_dir": "invalid_edit_recovery/bench_repo_patch/.ruiclaw/runs/c6b46d19c9f54c469084efafe44fcc57",
+      "run_id": "c6b46d19c9f54c469084efafe44fcc57",
+      "status": "pass",
+      "step_budget": 4,
+      "stop_reason": "completed",
+      "verifier_detail": "content matched",
+      "verifier_passed": true,
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "edit_file"
+      ],
+      "category": "tool-boundary",
+      "expected_artifact": "sample.txt",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "id": "path_escape_recovery",
+      "model_calls": 4,
+      "passed": true,
+      "report": {
+        "context": {
+          "compacted_requests": 0,
+          "max_source_tokens": {
+            "session_history": 510,
+            "tool_definitions": 2053,
+            "tool_result": 703
+          },
+          "max_total_tokens": 3266,
+          "max_utilization_ratio": 0.102063,
+          "requests": 4
+        },
+        "cost": {
+          "basis": "provider_calls",
+          "breakdown": {
+            "cache_read_usd": null,
+            "cache_write_usd": null,
+            "input_usd": null,
+            "output_usd": null
+          },
+          "currency": "USD",
+          "estimated_cost_usd": null,
+          "missing_usage_calls": 0,
+          "partial_estimated_cost_usd": null,
+          "priced_model_calls": 0,
+          "pricing_captured_at": "2026-09-13",
+          "pricing_scope": "Direct OpenAI API, Standard processing, text tokens",
+          "pricing_snapshot_id": "openai-standard-2026-09-13-v1",
+          "pricing_source_url": "https://developers.openai.com/api/docs/pricing",
+          "status": "unknown",
+          "unknown_models": [
+            "ruiclaw-bench/ruiclaw-scripted"
+          ],
+          "unpriced_model_calls": 4
+        },
+        "duration_ms": 36,
+        "failed_model_calls": 0,
+        "failed_provider_calls": 0,
+        "failed_tool_calls": 1,
+        "model_calls": 4,
+        "provider_calls": 4,
+        "run_id": "6270919131724c44bd8c68a6ee7ef6f7",
+        "schema_version": 1,
+        "status": "succeeded",
+        "stop_reason": "completed",
+        "tool_calls": 3,
+        "usage": {
+          "cache_read_tokens": null,
+          "cache_write_tokens": null,
+          "estimated_tokens": 11457,
+          "input_tokens": 11010,
+          "output_tokens": 447,
+          "reported_tokens": 0,
+          "request_count": 4,
+          "total_tokens": 11457
+        }
+      },
+      "run_dir": "path_escape_recovery/bench_repo_patch/.ruiclaw/runs/6270919131724c44bd8c68a6ee7ef6f7",
+      "run_id": "6270919131724c44bd8c68a6ee7ef6f7",
+      "status": "pass",
+      "step_budget": 4,
+      "stop_reason": "completed",
+      "verifier_detail": "content matched",
+      "verifier_passed": true,
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "edit_file"
+      ],
+      "category": "context-governance",
+      "expected_artifact": "sample.txt",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "id": "repeated_read_then_edit",
+      "model_calls": 5,
+      "passed": true,
+      "report": {
+        "context": {
+          "compacted_requests": 0,
+          "max_source_tokens": {
+            "session_history": 620,
+            "tool_definitions": 2053,
+            "tool_result": 398
+          },
+          "max_total_tokens": 3071,
+          "max_utilization_ratio": 0.095969,
+          "requests": 5
+        },
+        "cost": {
+          "basis": "provider_calls",
+          "breakdown": {
+            "cache_read_usd": null,
+            "cache_write_usd": null,
+            "input_usd": null,
+            "output_usd": null
+          },
+          "currency": "USD",
+          "estimated_cost_usd": null,
+          "missing_usage_calls": 0,
+          "partial_estimated_cost_usd": null,
+          "priced_model_calls": 0,
+          "pricing_captured_at": "2026-09-13",
+          "pricing_scope": "Direct OpenAI API, Standard processing, text tokens",
+          "pricing_snapshot_id": "openai-standard-2026-09-13-v1",
+          "pricing_source_url": "https://developers.openai.com/api/docs/pricing",
+          "status": "unknown",
+          "unknown_models": [
+            "ruiclaw-bench/ruiclaw-scripted"
+          ],
+          "unpriced_model_calls": 5
+        },
+        "duration_ms": 66,
+        "failed_model_calls": 0,
+        "failed_provider_calls": 0,
+        "failed_tool_calls": 0,
+        "model_calls": 5,
+        "provider_calls": 5,
+        "run_id": "01cb681a299742ebb33532522764a9b3",
+        "schema_version": 1,
+        "status": "succeeded",
+        "stop_reason": "completed",
+        "tool_calls": 4,
+        "usage": {
+          "cache_read_tokens": null,
+          "cache_write_tokens": null,
+          "estimated_tokens": 13338,
+          "input_tokens": 12775,
+          "output_tokens": 563,
+          "reported_tokens": 0,
+          "request_count": 5,
+          "total_tokens": 13338
+        }
+      },
+      "run_dir": "repeated_read_then_edit/bench_repo_patch/.ruiclaw/runs/01cb681a299742ebb33532522764a9b3",
+      "run_id": "01cb681a299742ebb33532522764a9b3",
+      "status": "pass",
+      "step_budget": 5,
+      "stop_reason": "completed",
+      "verifier_detail": "content matched",
+      "verifier_passed": true,
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file"
+      ],
+      "category": "observability",
+      "expected_artifact": "README.md",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "id": "run_evidence_bundle",
+      "model_calls": 1,
+      "passed": true,
+      "report": {
+        "context": {
+          "compacted_requests": 0,
+          "max_source_tokens": {
+            "session_history": 66,
+            "tool_definitions": 791
+          },
+          "max_total_tokens": 857,
+          "max_utilization_ratio": 0.026781,
+          "requests": 1
+        },
+        "cost": {
+          "basis": "provider_calls",
+          "breakdown": {
+            "cache_read_usd": null,
+            "cache_write_usd": null,
+            "input_usd": null,
+            "output_usd": null
+          },
+          "currency": "USD",
+          "estimated_cost_usd": null,
+          "missing_usage_calls": 0,
+          "partial_estimated_cost_usd": null,
+          "priced_model_calls": 0,
+          "pricing_captured_at": "2026-09-13",
+          "pricing_scope": "Direct OpenAI API, Standard processing, text tokens",
+          "pricing_snapshot_id": "openai-standard-2026-09-13-v1",
+          "pricing_source_url": "https://developers.openai.com/api/docs/pricing",
+          "status": "unknown",
+          "unknown_models": [
+            "ruiclaw-bench/ruiclaw-scripted"
+          ],
+          "unpriced_model_calls": 1
+        },
+        "duration_ms": 8,
+        "failed_model_calls": 0,
+        "failed_provider_calls": 0,
+        "failed_tool_calls": 0,
+        "model_calls": 1,
+        "provider_calls": 1,
+        "run_id": "6dc428fd823b468a81a7a029b397e160",
+        "schema_version": 1,
+        "status": "succeeded",
+        "stop_reason": "completed",
+        "tool_calls": 0,
+        "usage": {
+          "cache_read_tokens": null,
+          "cache_write_tokens": null,
+          "estimated_tokens": 880,
+          "input_tokens": 858,
+          "output_tokens": 22,
+          "reported_tokens": 0,
+          "request_count": 1,
+          "total_tokens": 880
+        }
+      },
+      "run_dir": "run_evidence_bundle/bench_repo_readme/.ruiclaw/runs/6dc428fd823b468a81a7a029b397e160",
+      "run_id": "6dc428fd823b468a81a7a029b397e160",
+      "status": "pass",
+      "step_budget": 1,
+      "stop_reason": "completed",
+      "verifier_detail": "run evidence bundle complete",
+      "verifier_passed": true,
+      "within_budget": true
+    }
+  ],
+  "runtime": {
+    "branch": "main",
+    "commit_sha": "19c3db55ce0343b15e5d013413f074dd982219ae"
+  },
+  "schema_version": 1,
+  "summary": {
+    "cost_per_successful_task_usd": null,
+    "cost_status": "unknown",
+    "estimated_total_cost_usd": null,
+    "failed": 0,
+    "input_tokens": 49321,
+    "model_calls": 20,
+    "output_tokens": 2211,
+    "partial_estimated_total_cost_usd": null,
+    "pass_rate": 1.0,
+    "passed": 6,
+    "pricing_snapshot_id": "openai-standard-2026-09-13-v1",
+    "total_tasks": 6,
+    "unknown_cost_tasks": 6,
+    "verifier_pass_rate": 1.0,
+    "within_budget_rate": 1.0
+  }
+}

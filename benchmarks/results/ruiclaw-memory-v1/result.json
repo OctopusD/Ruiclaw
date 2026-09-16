@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "benchmark": "ruiclaw-memory-v1",
+  "generated_at": "2026-09-14T03:49:37.539835+00:00",
+  "method": "Deterministic production-store ablation: memory_on reuses a relevant fresh summary; memory_off simulates the required source read.",
+  "summary": {
+    "total_scenarios": 7,
+    "passed": 7,
+    "pass_rate": 1.0,
+    "task_count": 6,
+    "memory_hit_rate": 1.0,
+    "top1_precision": 1.0,
+    "stale_suppression_rate": 1.0,
+    "memory_on_repeated_reads": 0,
+    "memory_off_repeated_reads": 6,
+    "avoided_read_chars": 7043
+  },
+  "rows": [
+    {
+      "id": "agent_loop.py",
+      "passed": true,
+      "selected_source": "agent_loop.py",
+      "score": 8,
+      "injected": true
+    },
+    {
+      "id": "runner.py",
+      "passed": true,
+      "selected_source": "runner.py",
+      "score": 8,
+      "injected": true
+    },
+    {
+      "id": "context.py",
+      "passed": true,
+      "selected_source": "context.py",
+      "score": 8,
+      "injected": true
+    },
+    {
+      "id": "memory.py",
+      "passed": true,
+      "selected_source": "memory.py",
+      "score": 8,
+      "injected": true
+    },
+    {
+      "id": "recovery.py",
+      "passed": true,
+      "selected_source": "recovery.py",
+      "score": 8,
+      "injected": true
+    },
+    {
+      "id": "run_ledger.py",
+      "passed": true,
+      "selected_source": "run_ledger.py",
+      "score": 8,
+      "injected": true
+    }
+  ],
+  "stale_case": {
+    "passed": true,
+    "stale_rejected_count": 1,
+    "selected_count": 0
+  }
+}

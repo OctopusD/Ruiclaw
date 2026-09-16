@@ -1,0 +1,14 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+dist/
+build/
+ruiclaw/web/dist/
+.git
+.env
+.assets
+node_modules/
+bridge/dist/
+workspace/

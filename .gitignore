@@ -1,0 +1,123 @@
+# Project-specific
+.worktrees/
+.worktree/
+.assets
+.docs
+.env
+.web
+.orion
+.ruiclaw/
+.nanobot/
+
+# Local workspace state created when RuiClaw uses this checkout as its workspace.
+/HEARTBEAT.md
+/cron/
+/memory/
+/prompts/
+/triggers/
+
+# Local reference project; it is not part of the RuiClaw distribution.
+/pico/
+/youtu-agent/
+
+# Keep benchmark evidence, but not regenerated fixture/workspace copies.
+/benchmarks/results/**/workspace/
+/benchmarks/results/**/workspaces/
+
+# Claude / AI assistant artifacts
+docs/superpowers/
+docs/plans/
+
+# webui (monorepo frontend)
+webui/node_modules/
+webui/dist/
+webui/coverage/
+webui/.vite/
+tui/node_modules/
+tui/dist/
+*.tsbuildinfo
+
+# Python bytecode & caches
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+__pycache__/
+*.egg-info/
+*.egg
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.dmypy.json
+dmypy.json
+.tox/
+.nox/
+.hypothesis/
+
+# Build & packaging
+dist/
+build/
+*.manifest
+*.spec
+pip-wheel-metadata/
+share/python-wheels/
+
+# Test & coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+# Lock files (project policy)
+poetry.lock
+uv.lock
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# Editors & IDEs (local workspace / user settings)
+.vscode/
+.cursor/
+.idea/
+.fleet/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+nano.*.save
+
+# Environment & secrets (keep examples tracked if needed)
+.env.*
+!.env.example
+
+# Logs & temp
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+exp/
+.playwright-mcp/
+bridge/node_modules/
+webui/.verify-*
+.playwright-cli/

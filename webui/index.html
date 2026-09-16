@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=auto"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="RuiClaw WebUI — chat with your RuiClaw workspace."
+      data-i18n-meta="description"
+    />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      data-theme-color-light="#ffffff"
+      data-theme-color-dark="#303030"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="RuiClaw" />
+    <link rel="icon" type="image/svg+xml" href="/brand/ruiclaw_mark.svg" />
+    <link rel="alternate icon" type="image/png" sizes="32x32" href="/brand/ruiclaw_favicon_32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/brand/ruiclaw_apple_touch.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <style>
+      html,
+      body,
+      #root {
+        height: 100%;
+      }
+
+      /* App-like feel on touch devices: no double-tap zoom on interactive
+         elements (system-level accessibility zoom still works), and no text
+         size inflation on orientation change. */
+      html {
+        -webkit-text-size-adjust: 100%;
+        touch-action: manipulation;
+      }
+
+      body {
+        margin: 0;
+        background: #ffffff;
+        color: #0a0a0a;
+        font-family:
+          system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Noto Sans SC",
+          "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+          sans-serif;
+      }
+
+      html.dark body {
+        background: #303030;
+        color: #fafafa;
+      }
+
+      .boot-splash {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .boot-splash-inner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 14px;
+      }
+
+      html:not(.dark) .boot-splash-inner {
+        color: rgba(10, 10, 10, 0.64);
+      }
+
+      .boot-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 9999px;
+        background: currentColor;
+        opacity: 0.75;
+        animation: boot-pulse 1s ease-in-out infinite;
+      }
+
+      @keyframes boot-pulse {
+        0%,
+        100% {
+          transform: scale(0.9);
+          opacity: 0.45;
+        }
+        50% {
+          transform: scale(1);
+          opacity: 0.85;
+        }
+      }
+    </style>
+    <script>
+      (function () {
+        try {
+          var stored = null;
+          try {
+            stored = localStorage.getItem("ruiclaw-webui.theme");
+          } catch {}
+          var dark =
+            stored === "dark" ||
+            (stored !== "light" &&
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+          var themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) {
+            var color = themeColor.getAttribute(
+              dark ? "data-theme-color-dark" : "data-theme-color-light"
+            );
+            if (color) themeColor.setAttribute("content", color);
+          }
+        } catch {}
+      })();
+    </script>
+    <title>RuiClaw</title>
+  </head>
+  <body class="bg-background text-foreground antialiased">
+    <div id="root">
+      <div class="boot-splash">
+        <div class="boot-splash-inner">
+          <span class="boot-dot" aria-hidden="true"></span>
+          <span data-boot-copy>Loading RuiClaw…</span>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var localeKey = "ruiclaw.locale";
+        var copy = {
+          en: {
+            boot: "Loading RuiClaw…",
+            description: "RuiClaw WebUI — chat with your RuiClaw workspace."
+          },
+          "zh-CN": {
+            boot: "正在加载 RuiClaw…",
+            description: "RuiClaw WebUI —— 与你的 RuiClaw 工作区对话。"
+          },
+          "zh-TW": {
+            boot: "正在載入 RuiClaw…",
+            description: "RuiClaw WebUI —— 與你的 RuiClaw 工作區對話。"
+          },
+          fr: {
+            boot: "Chargement de ruiclaw…",
+            description: "Interface web ruiclaw — discutez avec votre espace de travail ruiclaw."
+          },
+          ja: {
+            boot: "ruiclaw を読み込み中…",
+            description: "ruiclaw Web UI — ruiclaw ワークスペースと会話します。"
+          },
+          ko: {
+            boot: "ruiclaw 불러오는 중…",
+            description: "ruiclaw 웹 UI — ruiclaw 작업공간과 대화하세요."
+          },
+          es: {
+            boot: "Cargando ruiclaw…",
+            description: "Interfaz web de ruiclaw: conversa con tu espacio de trabajo de ruiclaw."
+          },
+          "pt-BR": {
+            boot: "Carregando ruiclaw…",
+            description: "Interface web do ruiclaw — converse com o seu espaço de trabalho do ruiclaw."
+          },
+          vi: {
+            boot: "Đang tải ruiclaw…",
+            description: "Giao diện web ruiclaw — trò chuyện với không gian làm việc ruiclaw của bạn."
+          },
+          id: {
+            boot: "Memuat ruiclaw…",
+            description: "UI web ruiclaw — ngobrol dengan ruang kerja ruiclaw Anda."
+          }
+        };
+
+        function normalizeLocale(input) {
+          if (!input) return "en";
+          var raw = String(input).trim();
+          if (!raw) return "en";
+          if (copy[raw]) return raw;
+          var lower = raw.toLowerCase();
+          if (lower === "zh" || lower.indexOf("zh-cn") === 0 || lower.indexOf("zh-sg") === 0) {
+            return "zh-CN";
+          }
+          if (
+            lower.indexOf("zh-tw") === 0 ||
+            lower.indexOf("zh-hk") === 0 ||
+            lower.indexOf("zh-mo") === 0 ||
+            lower.indexOf("zh-hant") === 0
+          ) {
+            return "zh-TW";
+          }
+          if (lower === "pt" || lower.indexOf("pt-") === 0) {
+            return "pt-BR";
+          }
+          var base = lower.split("-")[0];
+          return copy[base] ? base : "en";
+        }
+
+        try {
+          var stored = localStorage.getItem(localeKey);
+          var detected =
+            stored ||
+            (navigator.languages && navigator.languages[0]) ||
+            navigator.language ||
+            "en";
+          var locale = normalizeLocale(detected);
+          var localized = copy[locale] || copy.en;
+          document.documentElement.lang = locale;
+          var description = document.querySelector('[data-i18n-meta=\"description\"]');
+          if (description) description.setAttribute("content", localized.description);
+          var boot = document.querySelector("[data-boot-copy]");
+          if (boot) boot.textContent = localized.boot;
+        } catch {}
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

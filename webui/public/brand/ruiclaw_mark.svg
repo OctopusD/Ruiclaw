@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 128 128" fill="none">
+  <title>RuiClaw Run Loop mark</title>
+  <defs>
+    <linearGradient id="loop" x1="25" y1="100" x2="105" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="checkpoint" x1="91" y1="34" x2="107" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A78BFA"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <path d="M96 43A41 41 0 1 0 96 85" stroke="url(#loop)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M88 88 96 85 93 96" stroke="url(#loop)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="96" cy="43" r="9" fill="url(#checkpoint)" stroke="white" stroke-width="4"/>
+  <path d="M45 91V37h19c13 0 22 8 22 19 0 8-4 14-11 17l14 18H75L63 75h-7v16H45Zm11-43v17h8c7 0 11-3 11-9s-4-8-11-8h-8Z" fill="#0F172A"/>
+</svg>

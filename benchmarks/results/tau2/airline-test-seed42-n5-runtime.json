@@ -1,0 +1,42 @@
+{
+  "benchmark": "tau2",
+  "domain": "airline",
+  "split": "test",
+  "seed": 42,
+  "task_count": 5,
+  "reward_successes": 5,
+  "reward_success_rate": 1.0,
+  "selected_task_sessions": 5,
+  "run_count": 42,
+  "run_success_rate": 1.0,
+  "run_duration_ms": {
+    "p50": 1695.0,
+    "p95": 6828.900000000002,
+    "max": 16641
+  },
+  "model_calls": {
+    "total": 42,
+    "failed": 0,
+    "per_task": 8.4
+  },
+  "usage": {
+    "input_tokens": 404590,
+    "output_tokens": 17375,
+    "cache_read_tokens": 387840
+  },
+  "internal_tools": {
+    "calls": 0,
+    "failed": 0,
+    "success_rate": null,
+    "timed_out": 0
+  },
+  "external_tool_turns": 20,
+  "cost_statuses": {
+    "unknown": 42
+  },
+  "ledger_complete_rate": 1.0,
+  "notes": {
+    "external_tool_turns": "One turn may request multiple Tau tools; exact external call and success counts require adapter ledger events.",
+    "cost": "Unknown pricing is preserved as unknown rather than reported as zero."
+  }
+}

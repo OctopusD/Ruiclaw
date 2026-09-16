@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "benchmark": "ruiclaw-evolver-v1",
+  "generated_at": "2026-09-14T04:33:26.248357+00:00",
+  "method": "Deterministic offline baseline/candidate comparison using isolated workspaces and the production WorkingMemoryStore and ContextBuilder.",
+  "search": {
+    "candidate_budget": 1,
+    "candidates_evaluated": 1,
+    "candidate_isolation": true
+  },
+  "datasets": {
+    "train_tasks": 4,
+    "holdout_tasks": 2,
+    "safety_scenarios": 1
+  },
+  "results": {
+    "baseline": {
+      "policy": {
+        "name": "baseline",
+        "working_memory_top_k": 3
+      },
+      "metrics": {
+        "train_pass_rate": 1.0,
+        "holdout_pass_rate": 1.0,
+        "stale_suppression_rate": 1.0,
+        "working_memory_chars": 1136
+      },
+      "rows": [
+        {
+          "id": "runtime/agent_loop.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "runtime/agent_loop.py",
+            "observability/run_ledger.py",
+            "recovery/coordinator.py"
+          ],
+          "working_memory_chars": 194
+        },
+        {
+          "id": "runtime/runner.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "runtime/runner.py",
+            "observability/run_ledger.py",
+            "recovery/coordinator.py"
+          ],
+          "working_memory_chars": 193
+        },
+        {
+          "id": "context/context.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "context/context.py",
+            "observability/run_ledger.py",
+            "recovery/coordinator.py"
+          ],
+          "working_memory_chars": 191
+        },
+        {
+          "id": "memory/working_memory.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "memory/working_memory.py",
+            "observability/run_ledger.py",
+            "recovery/coordinator.py"
+          ],
+          "working_memory_chars": 186
+        },
+        {
+          "id": "recovery/coordinator.py",
+          "split": "holdout",
+          "passed": true,
+          "selected_sources": [
+            "recovery/coordinator.py",
+            "observability/run_ledger.py",
+            "memory/working_memory.py"
+          ],
+          "working_memory_chars": 186
+        },
+        {
+          "id": "observability/run_ledger.py",
+          "split": "holdout",
+          "passed": true,
+          "selected_sources": [
+            "observability/run_ledger.py",
+            "recovery/coordinator.py",
+            "memory/working_memory.py"
+          ],
+          "working_memory_chars": 186
+        }
+      ],
+      "stale_case": {
+        "passed": true,
+        "stale_rejected_count": 1,
+        "selected_sources": [
+          "observability/run_ledger.py",
+          "memory/working_memory.py",
+          "context/context.py"
+        ]
+      }
+    },
+    "candidate": {
+      "policy": {
+        "name": "candidate-top-k-1",
+        "working_memory_top_k": 1
+      },
+      "metrics": {
+        "train_pass_rate": 1.0,
+        "holdout_pass_rate": 1.0,
+        "stale_suppression_rate": 1.0,
+        "working_memory_chars": 490
+      },
+      "rows": [
+        {
+          "id": "runtime/agent_loop.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "runtime/agent_loop.py"
+          ],
+          "working_memory_chars": 86
+        },
+        {
+          "id": "runtime/runner.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "runtime/runner.py"
+          ],
+          "working_memory_chars": 85
+        },
+        {
+          "id": "context/context.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "context/context.py"
+          ],
+          "working_memory_chars": 83
+        },
+        {
+          "id": "memory/working_memory.py",
+          "split": "train",
+          "passed": true,
+          "selected_sources": [
+            "memory/working_memory.py"
+          ],
+          "working_memory_chars": 78
+        },
+        {
+          "id": "recovery/coordinator.py",
+          "split": "holdout",
+          "passed": true,
+          "selected_sources": [
+            "recovery/coordinator.py"
+          ],
+          "working_memory_chars": 80
+        },
+        {
+          "id": "observability/run_ledger.py",
+          "split": "holdout",
+          "passed": true,
+          "selected_sources": [
+            "observability/run_ledger.py"
+          ],
+          "working_memory_chars": 78
+        }
+      ],
+      "stale_case": {
+        "passed": true,
+        "stale_rejected_count": 1,
+        "selected_sources": [
+          "observability/run_ledger.py"
+        ]
+      }
+    }
+  },
+  "comparison": {
+    "working_memory_char_reduction": 0.5686619718309859
+  },
+  "gates": [
+    {
+      "id": "train_no_regression",
+      "passed": true
+    },
+    {
+      "id": "holdout_no_regression",
+      "passed": true
+    },
+    {
+      "id": "stale_safety_no_regression",
+      "passed": true
+    },
+    {
+      "id": "context_reduction",
+      "threshold": 0.2,
+      "actual": 0.5686619718309859,
+      "passed": true
+    }
+  ],
+  "decision": {
+    "status": "recommended_for_manual_review",
+    "automatic_promotion": false,
+    "statistical_confidence": "insufficient_small_holdout",
+    "reason": "all deterministic gates passed"
+  }
+}

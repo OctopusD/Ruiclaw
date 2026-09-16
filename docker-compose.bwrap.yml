@@ -1,0 +1,16 @@
+x-bwrap-security: &bwrap-security
+  cap_add:
+    - SYS_ADMIN
+  security_opt:
+    - apparmor=unconfined
+    - seccomp=unconfined
+
+services:
+  ruiclaw-gateway:
+    <<: *bwrap-security
+
+  ruiclaw-api:
+    <<: *bwrap-security
+
+  ruiclaw-cli:
+    <<: *bwrap-security

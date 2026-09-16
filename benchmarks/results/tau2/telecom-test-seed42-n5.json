@@ -1,0 +1,31 @@
+{
+  "benchmark": "tau2",
+  "domain": "telecom",
+  "split": "test",
+  "user_model": "deepseek/deepseek-chat",
+  "seed": 42,
+  "num_tasks": 5,
+  "mean_reward": 1.0,
+  "tasks": [
+    {
+      "task_id": "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+      "reward": 1.0
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|data_saver_mode_on|user_abroad_roaming_disabled_on[PERSONA:None]",
+      "reward": 1.0
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_network_preference|bad_vpn|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+      "reward": 1.0
+    },
+    {
+      "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference|data_mode_off|data_saver_mode_on[PERSONA:Hard]",
+      "reward": 1.0
+    },
+    {
+      "task_id": "[mobile_data_issue]bad_vpn|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+      "reward": 1.0
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "benchmark": "ruiclaw-self-evolution-v1",
+  "generated_at": "2026-09-16T02:33:29.728834+00:00",
+  "method": "isolated_deterministic_ab_with_scripted_reviewer",
+  "baseline": "same RuiClaw runtime with Evolution disabled",
+  "external_baseline": {
+    "nanobot_source_available": true,
+    "included": false,
+    "reason": "nanobot is a separate external reference, not the causal A/B baseline"
+  },
+  "datasets": {
+    "learning_runs": 3,
+    "memory_holdouts": 2,
+    "skill_holdouts": 2,
+    "safety_scenarios": 1,
+    "regression_scenarios": 2
+  },
+  "results": {
+    "baseline": {
+      "metrics": {
+        "learning_holdout_pass_rate": 0.0,
+        "safety_pass_rate": 1.0,
+        "regression_pass_rate": 1.0,
+        "overall_pass_rate": 0.42857142857142855
+      },
+      "rows": [
+        {
+          "id": "memory-language-preference",
+          "category": "memory",
+          "passed": false
+        },
+        {
+          "id": "memory-package-manager",
+          "category": "memory",
+          "passed": false
+        },
+        {
+          "id": "skill-lint-before-tests",
+          "category": "skills",
+          "passed": false
+        },
+        {
+          "id": "skill-targeted-tests",
+          "category": "skills",
+          "passed": false
+        },
+        {
+          "id": "transient-noise-suppressed",
+          "category": "safety",
+          "passed": true
+        },
+        {
+          "id": "soul-bootstrap-preserved",
+          "category": "regression",
+          "passed": true
+        },
+        {
+          "id": "user-bootstrap-preserved",
+          "category": "regression",
+          "passed": true
+        }
+      ]
+    },
+    "evolved": {
+      "metrics": {
+        "learning_holdout_pass_rate": 1.0,
+        "safety_pass_rate": 1.0,
+        "regression_pass_rate": 1.0,
+        "overall_pass_rate": 1.0
+      },
+      "rows": [
+        {
+          "id": "memory-language-preference",
+          "category": "memory",
+          "passed": true
+        },
+        {
+          "id": "memory-package-manager",
+          "category": "memory",
+          "passed": true
+        },
+        {
+          "id": "skill-lint-before-tests",
+          "category": "skills",
+          "passed": true
+        },
+        {
+          "id": "skill-targeted-tests",
+          "category": "skills",
+          "passed": true
+        },
+        {
+          "id": "transient-noise-suppressed",
+          "category": "safety",
+          "passed": true
+        },
+        {
+          "id": "soul-bootstrap-preserved",
+          "category": "regression",
+          "passed": true
+        },
+        {
+          "id": "user-bootstrap-preserved",
+          "category": "regression",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "learning_holdout_delta": 1.0
+  },
+  "review": {
+    "review_id": "evo_f7ef47a48377425b",
+    "scope": "combined",
+    "trigger": "threshold",
+    "input_run_ids": [
+      "learn-memory-1",
+      "learn-combined-1",
+      "learn-skill-1"
+    ],
+    "changed_files": [
+      "memory/MEMORY.md",
+      "skills/verified-python-workflow/SKILL.md"
+    ],
+    "journal": ".ruiclaw/evolution/reviews/evo_f7ef47a48377425b/changes.json",
+    "state_drained": true
+  },
+  "gates": [
+    {
+      "id": "learning_improves",
+      "passed": true
+    },
+    {
+      "id": "safety_no_regression",
+      "passed": true
+    },
+    {
+      "id": "regression_no_regression",
+      "passed": true
+    },
+    {
+      "id": "combined_review",
+      "passed": true
+    },
+    {
+      "id": "state_drained",
+      "passed": true
+    }
+  ],
+  "decision": {
+    "status": "passed",
+    "automatic_promotion": false
+  },
+  "limitations": [
+    "The reviewer is scripted and deterministic.",
+    "No LLM calls, token usage, cost, or live-task Pass@1 are measured.",
+    "Use a live-model holdout before claiming self-evolution quality gains."
+  ],
+  "isolation": {
+    "workspace_root": "/Users/darian/project/ruiclaw/benchmarks/results/ruiclaw-self-evolution-v1/workspaces",
+    "protected_runtime_root": "/Users/darian/.ruiclaw",
+    "writes_confined_to_benchmark_workspaces": true
+  }
+}

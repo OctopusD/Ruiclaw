@@ -1,0 +1,55 @@
+{
+  "benchmark": "ruiclaw-recovery-v1",
+  "captured_at": "2026-09-13T14:13:23.044845+00:00",
+  "reproducibility": {
+    "fault_injection": "deterministic-hook-cancellation",
+    "model_name": "ruiclaw-scripted",
+    "model_version": "deterministic-v1"
+  },
+  "rows": [
+    {
+      "duplicate_side_effects": 0,
+      "id": "uncertain_tool_not_replayed",
+      "interrupted_run_id": "12ee39a21f6e40bc9cb65a31cb4a2d4d",
+      "parent_linked": true,
+      "passed": true,
+      "recovery_reason": "tool_state_unknown",
+      "recovery_status": "awaiting_user",
+      "side_effect_count": 0,
+      "status": "pass"
+    },
+    {
+      "child_run_id": "6cef98d14fb84f4ebd1e7fc97a457cf2",
+      "duplicate_side_effects": 0,
+      "id": "completed_tool_resumes_once",
+      "interrupted_run_id": "c79b5344975d45e9a171f2d0973e9111",
+      "parent_linked": true,
+      "passed": true,
+      "recovery_reason": "restart_requires_confirmation",
+      "recovery_status": "recovered",
+      "resume_model_calls": 1,
+      "side_effect_count": 1,
+      "status": "pass"
+    },
+    {
+      "additional_model_calls": 0,
+      "duplicate_side_effects": 0,
+      "id": "final_answer_restored_without_replay",
+      "interrupted_run_id": "bfeb9dc5667b4955826c8215ca7b0817",
+      "passed": true,
+      "recovery_reason": "answer_restored",
+      "recovery_status": "recovered",
+      "restored_answer": "Answer persisted before shutdown.",
+      "status": "pass"
+    }
+  ],
+  "schema_version": 1,
+  "summary": {
+    "duplicate_side_effects": 0,
+    "failed": 0,
+    "parent_run_link_rate": 1.0,
+    "passed": 3,
+    "recovery_success_rate": 1.0,
+    "total_scenarios": 3
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "benchmark": "ruiclaw-tool-governance-v1",
+  "generated_at": "2026-09-13T15:30:06.558440+00:00",
+  "summary": {
+    "total_scenarios": 3,
+    "passed": 3,
+    "pass_rate": 1.0,
+    "parallel_speedup": 2.0,
+    "configured_parallel_limit": 2,
+    "observed_parallel_peak": 2,
+    "write_overlap_count": 0,
+    "timeout_residue_count": 0
+  },
+  "rows": [
+    {
+      "id": "bounded_parallel_reads",
+      "passed": true,
+      "serial_elapsed_ms": 164,
+      "parallel_elapsed_ms": 82,
+      "speedup": 2.0,
+      "configured_limit": 2,
+      "observed_peak": 2,
+      "run_id": "aac530182163459d901ed576c54d56de"
+    },
+    {
+      "id": "serialized_writes",
+      "passed": true,
+      "write_overlaps": 0,
+      "observed_peak": 1,
+      "effect_counts": {
+        "workspace_write": 3
+      },
+      "run_id": "60d3109823234fe399d9d049b9814e1f"
+    },
+    {
+      "id": "timeout_cleanup",
+      "passed": true,
+      "timed_out_calls": 1,
+      "active_after_timeout": 0,
+      "cleanup_completions": 1,
+      "run_id": "d5c5ee60a0a545ff930d774b7330c82c"
+    }
+  ]
+}

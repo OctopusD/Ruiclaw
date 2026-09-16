@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "description": "Fixed deterministic harness regression tasks for RuiClaw Bench v1.",
+  "tasks": [
+    {
+      "id": "readme_intro_locked",
+      "prompt": "Replace the placeholder README opening with the locked benchmark sentence.",
+      "fixture_repo": "benchmarks/fixtures/bench_repo_readme",
+      "allowed_tools": ["read_file", "edit_file"],
+      "step_budget": 3,
+      "expected_artifact": "README.md",
+      "verifier": {"kind": "file_contains", "path": "README.md", "contains": "This fixture is a locked RuiClaw benchmark workspace."},
+      "category": "documentation",
+      "script": [
+        {"content": "", "tool_calls": [{"id": "read-readme", "name": "read_file", "arguments": {"path": "README.md"}}]},
+        {"content": "", "tool_calls": [{"id": "edit-readme", "name": "edit_file", "arguments": {"path": "README.md", "old_text": "This is a placeholder RuiClaw benchmark fixture.", "new_text": "This fixture is a locked RuiClaw benchmark workspace."}}]},
+        {"content": "Done.", "tool_calls": []}
+      ]
+    },
+    {
+      "id": "sample_beta_locked",
+      "prompt": "Change beta to beta-locked in sample.txt.",
+      "fixture_repo": "benchmarks/fixtures/bench_repo_patch",
+      "allowed_tools": ["read_file", "edit_file"],
+      "step_budget": 3,
+      "expected_artifact": "sample.txt",
+      "verifier": {"kind": "file_contains", "path": "sample.txt", "contains": "beta-locked"},
+      "category": "text-edit",
+      "script": [
+        {"content": "", "tool_calls": [{"id": "read-beta", "name": "read_file", "arguments": {"path": "sample.txt"}}]},
+        {"content": "", "tool_calls": [{"id": "edit-beta", "name": "edit_file", "arguments": {"path": "sample.txt", "old_text": "beta", "new_text": "beta-locked"}}]},
+        {"content": "Done.", "tool_calls": []}
+      ]
+    },
+    {
+      "id": "invalid_edit_recovery",
+      "prompt": "Recover from invalid edit arguments and update gamma safely.",
+      "fixture_repo": "benchmarks/fixtures/bench_repo_patch",
+      "allowed_tools": ["read_file", "edit_file"],
+      "step_budget": 4,
+      "expected_artifact": "sample.txt",
+      "verifier": {"kind": "file_contains", "path": "sample.txt", "contains": "gamma-recovered"},
+      "category": "tool-boundary",
+      "script": [
+        {"content": "", "tool_calls": [{"id": "bad-edit", "name": "edit_file", "arguments": {"path": "sample.txt", "old_text": "gamma"}}]},
+        {"content": "", "tool_calls": [{"id": "read-gamma", "name": "read_file", "arguments": {"path": "sample.txt"}}]},
+        {"content": "", "tool_calls": [{"id": "edit-gamma", "name": "edit_file", "arguments": {"path": "sample.txt", "old_text": "gamma", "new_text": "gamma-recovered"}}]},
+        {"content": "Done.", "tool_calls": []}
+      ]
+    },
+    {
+      "id": "path_escape_recovery",
+      "prompt": "Reject a path escape, then safely update alpha inside the workspace.",
+      "fixture_repo": "benchmarks/fixtures/bench_repo_patch",
+      "allowed_tools": ["read_file", "edit_file"],
+      "step_budget": 4,
+      "expected_artifact": "sample.txt",
+      "verifier": {"kind": "file_contains", "path": "sample.txt", "contains": "alpha-guarded"},
+      "category": "tool-boundary",
+      "script": [
+        {"content": "", "tool_calls": [{"id": "escape-read", "name": "read_file", "arguments": {"path": "../outside.txt"}}]},
+        {"content": "", "tool_calls": [{"id": "read-alpha", "name": "read_file", "arguments": {"path": "sample.txt"}}]},
+        {"content": "", "tool_calls": [{"id": "edit-alpha", "name": "edit_file", "arguments": {"path": "sample.txt", "old_text": "alpha", "new_text": "alpha-guarded"}}]},
+        {"content": "Done.", "tool_calls": []}
+      ]
+    },
+    {
+      "id": "repeated_read_then_edit",
+      "prompt": "Handle repeated reads and then replace the placeholder safely.",
+      "fixture_repo": "benchmarks/fixtures/bench_repo_patch",
+      "allowed_tools": ["read_file", "edit_file"],
+      "step_budget": 5,
+      "expected_artifact": "sample.txt",
+      "verifier": {"kind": "file_contains", "path": "sample.txt", "contains": "repeat-guarded"},
+      "category": "context-governance",
+      "script": [
+        {"content": "", "tool_calls": [{"id": "read-1", "name": "read_file", "arguments": {"path": "sample.txt"}}]},
+        {"content": "", "tool_calls": [{"id": "read-2", "name": "read_file", "arguments": {"path": "sample.txt"}}]},
+        {"content": "", "tool_calls": [{"id": "read-3", "name": "read_file", "arguments": {"path": "sample.txt"}}]},
+        {"content": "", "tool_calls": [{"id": "edit-repeat", "name": "edit_file", "arguments": {"path": "sample.txt", "old_text": "placeholder", "new_text": "repeat-guarded"}}]},
+        {"content": "Done.", "tool_calls": []}
+      ]
+    },
+    {
+      "id": "run_evidence_bundle",
+      "prompt": "Complete a no-tool turn and preserve its RuiClaw run evidence.",
+      "fixture_repo": "benchmarks/fixtures/bench_repo_readme",
+      "allowed_tools": ["read_file"],
+      "step_budget": 1,
+      "expected_artifact": "README.md",
+      "verifier": {"kind": "run_bundle", "required_events": ["run_started", "context_built", "model_call_started", "model_call_finished", "run_finished"]},
+      "category": "observability",
+      "script": [
+        {"content": "Evidence captured.", "tool_calls": []}
+      ]
+    }
+  ]
+}

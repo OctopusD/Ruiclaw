@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "openai-standard-2026-09-13-v1",
+  "captured_at": "2026-09-13",
+  "currency": "USD",
+  "source_url": "https://developers.openai.com/api/docs/pricing",
+  "scope": "Direct OpenAI API, Standard processing, text tokens",
+  "models": [
+    {
+      "provider": "openai",
+      "model": "gpt-5.3-codex",
+      "input_usd_per_million": "1.75",
+      "cache_read_usd_per_million": "0.175",
+      "output_usd_per_million": "14.00"
+    }
+  ]
+}

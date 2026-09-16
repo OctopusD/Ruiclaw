@@ -1,0 +1,28 @@
+{
+  "benchmark": "tau2",
+  "domain": "airline",
+  "num_tasks": 5,
+  "mean_reward": 1.0,
+  "tasks": [
+    {
+      "task_id": "0",
+      "reward": 1.0
+    },
+    {
+      "task_id": "1",
+      "reward": 1.0
+    },
+    {
+      "task_id": "2",
+      "reward": 1.0
+    },
+    {
+      "task_id": "3",
+      "reward": 1.0
+    },
+    {
+      "task_id": "4",
+      "reward": 1.0
+    }
+  ]
+}
