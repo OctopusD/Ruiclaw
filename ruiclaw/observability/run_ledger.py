@@ -62,6 +62,7 @@ class RunLedger:
     turn_id: str
     parent_run_id: str | None = None
     trigger: str = "user"
+    run_kind: str = "agent"
     _sequence: int = field(init=False, default=0)
     _lock: asyncio.Lock = field(init=False, default_factory=asyncio.Lock)
 
@@ -99,6 +100,7 @@ class RunLedger:
                 "turn_id": self.turn_id,
                 "parent_run_id": self.parent_run_id,
                 "trigger": self.trigger,
+                "run_kind": self.run_kind,
                 "status": "running",
                 "started_at": started_at,
                 "finished_at": None,

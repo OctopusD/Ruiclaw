@@ -138,6 +138,14 @@ BUILTIN_COMMAND_SPECS: tuple[BuiltinCommandSpec, ...] = (
         "sparkles",
     ),
     BuiltinCommandSpec(
+        "/evolve",
+        "Review agent experience",
+        "Show or trigger a Memory/Skill evolution review.",
+        "sparkles",
+        "[memory|skills]",
+        accepts_args=True,
+    ),
+    BuiltinCommandSpec(
         "/dream-log",
         "Show Dream log",
         "Show what the last Dream consolidation changed.",
@@ -525,6 +533,57 @@ async def cmd_dream(ctx: CommandContext) -> OutboundMessage:
     asyncio.create_task(_run_dream())
     return OutboundMessage(
         channel=msg.channel, chat_id=msg.chat_id, content="Dreaming...",
+    )
+
+
+async def cmd_evolve(ctx: CommandContext) -> OutboundMessage:
+    """Show evolution queues or force one isolated review."""
+    loop = ctx.loop
+    workspace = loop.evolution_workspace(ctx)
+    scope = ctx.args.strip().lower() or None
+    if scope not in {None, "memory", "skills"}:
+        return OutboundMessage(
+            channel=ctx.msg.channel,
+            chat_id=ctx.msg.chat_id,
+            content="Usage: /evolve [memory|skills]",
+        )
+    if scope is None:
+        state = await loop.evolution_status(workspace)
+        memory = state["memory_review"]
+        skills = state["skill_review"]
+        memory_count = sum(int(item.get("memory_turns", 0)) for item in memory["pending"])
+        skill_count = sum(int(item.get("skill_tool_iterations", 0)) for item in skills["pending"])
+        skill_runs = len(skills["pending"])
+        return OutboundMessage(
+            channel=ctx.msg.channel,
+            chat_id=ctx.msg.chat_id,
+            content=(
+                f"Memory: {memory['status']} ({memory_count} candidate turns)\n"
+                f"Skills: {skills['status']} ({skill_count} tool iterations across "
+                f"{skill_runs} runs)"
+            ),
+        )
+
+    async def _run_review() -> None:
+        batch = await loop.run_evolution_review(workspace, scope, force=True)
+        if batch is None:
+            content = f"Evolution {scope} review unavailable (no queued candidates)."
+        else:
+            content = (
+                f"Evolution {scope} review completed "
+                f"({len(batch.run_ids)} candidate runs)."
+            )
+        await loop.bus.publish_outbound(OutboundMessage(
+            channel=ctx.msg.channel,
+            chat_id=ctx.msg.chat_id,
+            content=content,
+        ))
+
+    loop.schedule_background(_run_review())
+    return OutboundMessage(
+        channel=ctx.msg.channel,
+        chat_id=ctx.msg.chat_id,
+        content="Evolution review queued...",
     )
 
 
@@ -1086,6 +1145,8 @@ def register_builtin_commands(router: CommandRouter) -> None:
     router.exact("/trigger", cmd_trigger)
     router.prefix("/trigger ", cmd_trigger)
     router.exact("/dream", cmd_dream)
+    router.exact("/evolve", cmd_evolve)
+    router.prefix("/evolve ", cmd_evolve)
     router.exact("/dream-log", cmd_dream_log)
     router.prefix("/dream-log ", cmd_dream_log)
     router.exact("/dream-restore", cmd_dream_restore)

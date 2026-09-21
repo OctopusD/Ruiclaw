@@ -80,6 +80,29 @@ class DreamConfig(Base):
         return f"every {hours}h"
 
 
+class MemoryReviewConfig(Base):
+    """Automatic long-term memory review thresholds."""
+
+    enabled: bool = True
+    valid_turns: int = Field(default=10, ge=1)
+
+
+class SkillReviewConfig(Base):
+    """Automatic skill review thresholds."""
+
+    enabled: bool = True
+    tool_iterations: int = Field(default=20, ge=1)
+    minimum_candidate_runs: int = Field(default=2, ge=1)
+
+
+class EvolutionConfig(Base):
+    """Run-driven self-evolution settings."""
+
+    enabled: bool = True
+    memory_review: MemoryReviewConfig = Field(default_factory=MemoryReviewConfig)
+    skill_review: SkillReviewConfig = Field(default_factory=SkillReviewConfig)
+
+
 class InlineFallbackConfig(Base):
     """One inline fallback model configuration."""
 
@@ -157,6 +180,7 @@ class AgentDefaults(Base):
         ge=0,
     )  # Minimum interval in seconds between scans for idle sessions
     dream: DreamConfig = Field(default_factory=DreamConfig)
+    evolution: EvolutionConfig = Field(default_factory=EvolutionConfig)
 
     @model_validator(mode="before")
     @classmethod

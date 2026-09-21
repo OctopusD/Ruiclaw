@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
+import json
 import os
 import time
 import weakref
@@ -27,6 +28,14 @@ from ruiclaw.agent.autocompact import AutoCompact
 from ruiclaw.agent.automation_turns import publish_next_deferred_turn
 from ruiclaw.agent.context import ContextBuilder, PersistedPromptContextResolver, TranscriptInput
 from ruiclaw.agent.cron_turns import CronTurnCoordinator
+from ruiclaw.agent.evolution import (
+    EvolutionBatch,
+    EvolutionCoordinator,
+    EvolutionFileJournal,
+    EvolutionSettings,
+    EvolutionStateStore,
+    observation_from_run,
+)
 from ruiclaw.agent.hook import AgentHook, AgentTurnHookFactory
 from ruiclaw.agent.memory import Consolidator
 from ruiclaw.agent.model_runtime import ModelRuntimeResolver
@@ -149,6 +158,7 @@ class TurnContext:
     runtime: LLMRuntime | None
     kind: TurnKind
     delivery: TurnDelivery
+    run_kind: str = "agent"
     original_user_text: str | None = None
     session: Session | None = None
 
@@ -314,6 +324,7 @@ class AgentLoop:
         local_trigger_store: LocalTriggerStore | None = None,
         idle_compact_check_interval_seconds: int = 0,
         recovery_admission: RecoveryAdmission | None = None,
+        evolution_settings: EvolutionSettings | None = None,
     ):
         from ruiclaw.config.schema import ToolsConfig
 
@@ -332,6 +343,20 @@ class AgentLoop:
         self.restart_mode = restart_mode
         self._runtime_model_publisher = runtime_model_publisher
         self.workspace = workspace
+        self.evolution_settings = evolution_settings or EvolutionSettings()
+        # A few lightweight unit tests construct the loop with a mocked workspace.
+        # Do not touch the filesystem until a real Path-backed runtime is used.
+        if isinstance(self.workspace, Path):
+            self._evolution_store: EvolutionStateStore | None = EvolutionStateStore(
+                self.workspace, self.evolution_settings
+            )
+            self._evolution_coordinator: EvolutionCoordinator | None = EvolutionCoordinator(
+                self._evolution_store,
+                self._review_evolution_batch,
+            )
+        else:
+            self._evolution_store = None
+            self._evolution_coordinator = None
         initial_model = model or provider.get_default_model()
         self.max_iterations = (
             max_iterations if max_iterations is not None else defaults.max_tool_iterations
@@ -545,6 +570,14 @@ class AgentLoop:
             provider_snapshot_loader=provider_snapshot_loader,
             preset_snapshot_loader=preset_snapshot_loader,
             tool_registry=tool_registry,
+            evolution_settings=EvolutionSettings(
+                enabled=defaults.evolution.enabled,
+                memory_enabled=defaults.evolution.memory_review.enabled,
+                memory_valid_turns=defaults.evolution.memory_review.valid_turns,
+                skills_enabled=defaults.evolution.skill_review.enabled,
+                skill_tool_iterations=defaults.evolution.skill_review.tool_iterations,
+                skill_minimum_candidate_runs=defaults.evolution.skill_review.minimum_candidate_runs,
+            ),
             **extra,
         )
 
@@ -1620,6 +1653,59 @@ class AgentLoop:
         if errors:
             raise BaseExceptionGroup("failed to close agent resources", errors)
 
+    def evolution_workspace(self, _ctx: object | None = None) -> Path:
+        """Return the workspace whose runs feed the evolution queues."""
+        return self.workspace
+
+    async def evolution_status(self, workspace: Path | None = None) -> dict[str, Any]:
+        """Return a display-safe snapshot of pending evolution candidates."""
+        target = workspace or self.workspace
+        store = (
+            self._evolution_store
+            if target == self.workspace and self._evolution_store is not None
+            else EvolutionStateStore(target, self.evolution_settings)
+        )
+        return await store.snapshot()
+
+    async def run_evolution_review(
+        self,
+        workspace: Path,
+        scope: str | None = None,
+        *,
+        force: bool = False,
+    ) -> EvolutionBatch | None:
+        """Run one isolated Memory/Skill review and return its claimed batch."""
+        if workspace != self.workspace:
+            store = EvolutionStateStore(workspace, self.evolution_settings)
+            coordinator = EvolutionCoordinator(store, self._review_evolution_batch)
+            return await coordinator.run(cast(Any, scope), force=force)
+        if self._evolution_coordinator is None:
+            return None
+        return await self._evolution_coordinator.run(cast(Any, scope), force=force)
+
+    async def _review_evolution_batch(self, batch: EvolutionBatch) -> bool:
+        """Use an internal, non-recursive Run to review one candidate batch."""
+        journal = EvolutionFileJournal(self.workspace, batch)
+        journal.capture_before()
+        try:
+            candidate_ids = ", ".join(batch.run_ids)
+            await self.process_direct(
+                "Review the completed agent runs and identify durable memory or skill improvements. "
+                "Do not modify files unless the evidence supports a concrete improvement. "
+                f"Candidate run IDs: {candidate_ids}",
+                session_key=f"evolution:{batch.review_id}",
+                channel="evolution",
+                chat_id=batch.review_id,
+                sender_id="system:evolution",
+                persist_user_message=False,
+                run_kind="evolution",
+            )
+            journal.finish(succeeded=True)
+            return True
+        except Exception:
+            journal.finish(succeeded=False)
+            raise
+
     def schedule_background(self, coro: Coroutine[Any, Any, Any]) -> None:
         """Schedule a coroutine as a tracked background task (drained on shutdown)."""
         task = asyncio.create_task(coro)
@@ -1664,6 +1750,8 @@ class AgentLoop:
             raise ValueError("turn delivery session does not match the processing session")
         t0 = time.time()
         turn_id = f"{key}:{time.time_ns()}"
+        run_kind_value = msg.metadata.get("_ruiclaw_run_kind", "agent")
+        run_kind = run_kind_value if isinstance(run_kind_value, str) else "agent"
         inherited_run_id = msg.metadata.get(RUN_ID_METADATA_KEY)
         is_internal_continuation = (
             msg.sender_id == "system:continuation"
@@ -1699,6 +1787,7 @@ class AgentLoop:
             runtime=runtime,
             kind=kind,
             delivery=delivery,
+            run_kind=run_kind,
             original_user_text=(
                 None
                 if kind is TurnKind.SYSTEM
@@ -1766,6 +1855,7 @@ class AgentLoop:
                     if ctx.kind is TurnKind.USER
                     else "system"
                 ),
+                run_kind=ctx.run_kind,
             )
             try:
                 await ctx.run_ledger.start()
@@ -1802,8 +1892,8 @@ class AgentLoop:
         except Exception:
             logger.exception("Failed to append Run ledger for {}", ctx.run_id)
 
-    @staticmethod
     async def _finish_run_ledger(
+        self,
         ctx: TurnContext,
         status: str,
         stop_reason: str | None,
@@ -1812,6 +1902,22 @@ class AgentLoop:
             return
         try:
             await ctx.run_ledger.finish(status, stop_reason=stop_reason)
+            if status == "succeeded":
+                report = json.loads(ctx.run_ledger.report_path.read_text(encoding="utf-8"))
+                observation = observation_from_run(
+                    run_id=ctx.run_id,
+                    session_key=ctx.session_key,
+                    turn_id=ctx.turn_id,
+                    status=status,
+                    user_text=ctx.original_user_text,
+                    report=report if isinstance(report, dict) else {},
+                    run_kind=ctx.run_kind,
+                )
+                if observation is not None:
+                    if self._evolution_coordinator is not None:
+                        due = await self._evolution_coordinator.observe(observation)
+                        if due:
+                            await self._evolution_coordinator.run()
         except Exception:
             logger.exception("Failed to finish Run ledger for {}", ctx.run_id)
 
@@ -2094,6 +2200,7 @@ class AgentLoop:
                 ctx.msg,
                 session,
                 runtime_context_blocks=ctx.runtime_context_blocks,
+                _ruiclaw_run_id=ctx.run_id,
             )
             if staged_provider_state and not ctx.input_persisted_early:
                 session.provider_state = stored_state
@@ -2190,6 +2297,7 @@ class AgentLoop:
             turn_latency_ms=ctx.turn_latency_ms,
             summary_checkpoint=ctx.summary_checkpoint,
             input_persisted_early=ctx.input_persisted_early,
+            run_id=ctx.run_id,
         )
         if (
             not ctx.ephemeral
@@ -2299,6 +2407,7 @@ class AgentLoop:
         turn_latency_ms: int | None = None,
         summary_checkpoint: SessionSummaryCheckpoint | None = None,
         input_persisted_early: bool = False,
+        run_id: str | None = None,
     ) -> None:
         """Commit new-turn messages and an optional summary boundary."""
         declared_tool_call_ids = {
@@ -2340,6 +2449,8 @@ class AgentLoop:
                 session.commit_summary_checkpoint(summary_checkpoint.summary)
 
             entry = dict(message)
+            if run_id is not None and entry.get("role") in {"user", "assistant"}:
+                entry[RUN_ID_METADATA_KEY] = run_id
             followup_id_value = cast(object, entry.pop(PENDING_FOLLOWUP_ID_KEY, None))
             followup_ids = (
                 [followup_id_value]
@@ -2485,6 +2596,7 @@ class AgentLoop:
         hook_factories: list[AgentTurnHookFactory] | None = None,
         tools: ToolRegistry | None = None,
         persist_user_message: bool = True,
+        run_kind: str = "agent",
         runtime: LLMRuntime | None = None,
         on_runtime_admitted: Callable[[LLMRuntime], Awaitable[None]] | None = None,
         attributes: Mapping[str, Any] | None = None,
@@ -2495,6 +2607,8 @@ class AgentLoop:
         metadata: dict[str, Any] = {}
         if not persist_user_message:
             metadata[turn_continuation.SKIP_USER_PERSIST_META] = True
+        if run_kind != "agent":
+            metadata["_ruiclaw_run_kind"] = run_kind
         msg = InboundMessage(
             channel=channel, sender_id=sender_id, chat_id=chat_id,
             content=content, media=media or [], metadata=metadata,
