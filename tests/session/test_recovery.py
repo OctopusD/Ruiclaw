@@ -18,6 +18,7 @@ from ruiclaw.session.recovery import (
     RecoveryActionError,
     RecoveryCoordinator,
     acknowledge_pending_followups,
+    capture_workspace_snapshot,
     pending_followups,
     record_pending_followup,
 )
@@ -322,6 +323,82 @@ async def test_completed_tools_wait_for_confirmation_after_restart(tmp_path: Pat
 
     continuation = bus.inbound.get_nowait()
     assert continuation.metadata[PARENT_RUN_ID_METADATA_KEY] == "interrupted-run"
+
+
+@pytest.mark.asyncio
+async def test_changed_workspace_dependency_requires_fresh_replan(tmp_path: Path) -> None:
+    tracked = tmp_path / "app.py"
+    tracked.write_text("value = 1\n", encoding="utf-8")
+    sessions = SessionManager(tmp_path)
+    session = sessions.get_or_create("websocket:chat")
+    session.messages.append({"role": "user", "content": "update app.py"})
+    session.metadata[PENDING_USER_TURN_KEY] = True
+    session.metadata[RUNTIME_CHECKPOINT_KEY] = {
+        RUN_ID_METADATA_KEY: "interrupted-run",
+        "phase": "tools_completed",
+        "assistant_message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [{"id": "call-1", "function": {"name": "read_file"}}],
+        },
+        "completed_tool_results": [
+            {
+                "role": "tool",
+                "tool_call_id": "call-1",
+                "name": "read_file",
+                "content": "value = 1",
+            }
+        ],
+        "pending_tool_calls": [],
+        "workspace_snapshot": capture_workspace_snapshot(tmp_path, [str(tracked)]),
+    }
+    _persist(sessions, session)
+    tracked.write_text("value = 2\n", encoding="utf-8")
+
+    coordinator, bus, restarted = _coordinator(tmp_path)
+    await coordinator.scan()
+
+    restored = restarted.get_or_create("websocket:chat")
+    state = restored.metadata[RECOVERY_METADATA_KEY]
+    assert state["status"] == "awaiting_user"
+    assert state["reason"] == "workspace_changed"
+    assert state["parent_run_id"] == "interrupted-run"
+    assert restored.provider_state is None
+    assert restored.messages[-1]["content"] == "value = 1"
+
+    await coordinator.handle_action(
+        "continue",
+        {"chat_id": "chat", "recovery_id": state["recovery_id"]},
+    )
+    continuation = bus.inbound.get_nowait()
+    assert "workspace changed" in continuation.content
+    assert "Re-read" in continuation.content
+
+
+@pytest.mark.asyncio
+async def test_unrelated_workspace_change_does_not_invalidate_checkpoint(tmp_path: Path) -> None:
+    tracked = tmp_path / "app.py"
+    tracked.write_text("value = 1\n", encoding="utf-8")
+    sessions = SessionManager(tmp_path)
+    session = sessions.get_or_create("websocket:chat")
+    session.messages.append({"role": "user", "content": "answer"})
+    session.metadata[PENDING_USER_TURN_KEY] = True
+    session.metadata[RUNTIME_CHECKPOINT_KEY] = {
+        "phase": "final_response",
+        "assistant_message": {"role": "assistant", "content": "done"},
+        "completed_tool_results": [],
+        "pending_tool_calls": [],
+        "workspace_snapshot": capture_workspace_snapshot(tmp_path, [str(tracked)]),
+    }
+    _persist(sessions, session)
+    (tmp_path / "unrelated.py").write_text("new = True\n", encoding="utf-8")
+
+    coordinator, _, restarted = _coordinator(tmp_path)
+    await coordinator.scan()
+
+    restored = restarted.get_or_create("websocket:chat")
+    assert restored.metadata[RECOVERY_METADATA_KEY]["reason"] == "answer_restored"
+    assert restored.messages[-1]["content"] == "done"
 
 
 @pytest.mark.asyncio

@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
+import hashlib
 import json
+import stat
 from collections.abc import Iterable, Mapping
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Protocol, cast
 from uuid import uuid4
 
@@ -42,12 +45,97 @@ PENDING_FOLLOWUPS_KEY = "pending_user_followups"
 PENDING_FOLLOWUP_ID_KEY = "_recovery_followup_id"
 PROVIDER_STATE_CHECKPOINT_VERSION_KEY = "provider_state_checkpoint_version"
 PROVIDER_STATE_CHECKPOINT_VERSION = "v1"
+WORKSPACE_SNAPSHOT_KEY = "workspace_snapshot"
+_WORKSPACE_SNAPSHOT_VERSION = 1
 
 _RECOVERY_STATUSES = frozenset({"resuming", "awaiting_user", "recovered", "failed"})
 _UNCERTAIN_TOOL_PHASES = frozenset({"awaiting_tools"})
 _KNOWN_CHECKPOINT_PHASES = frozenset(
     {"final_response", "tools_completed", "awaiting_tools", "error"}
 )
+
+
+def _workspace_file_fingerprint(path: Path) -> dict[str, str]:
+    try:
+        mode = path.lstat().st_mode
+    except FileNotFoundError:
+        return {"state": "missing"}
+    except OSError:
+        return {"state": "unreadable"}
+    if not stat.S_ISREG(mode):
+        return {"state": "other"}
+    try:
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return {"state": "unreadable"}
+    return {"state": "file", "sha256": digest}
+
+
+def capture_workspace_snapshot(workspace: Path, paths: Iterable[str]) -> dict[str, Any]:
+    """Capture content fingerprints for files the active session has touched."""
+    root = workspace.expanduser().resolve(strict=False)
+    files: list[dict[str, str]] = []
+    for raw_path in sorted(set(paths)):
+        path = Path(raw_path).expanduser().resolve(strict=False)
+        try:
+            relative = path.relative_to(root)
+        except ValueError:
+            continue
+        files.append({"path": relative.as_posix(), **_workspace_file_fingerprint(path)})
+    return {
+        "version": _WORKSPACE_SNAPSHOT_VERSION,
+        "root": str(root),
+        "files": files,
+    }
+
+
+def _workspace_snapshot_changes(value: object) -> tuple[bool, tuple[str, ...]]:
+    """Validate a checkpoint snapshot and return changed dependency paths."""
+    if value is None:
+        return True, ()
+    if not isinstance(value, dict):
+        return False, ()
+    snapshot = cast(dict[str, object], value)
+    root_value = snapshot.get("root")
+    files_value = snapshot.get("files")
+    if (
+        snapshot.get("version") != _WORKSPACE_SNAPSHOT_VERSION
+        or not isinstance(root_value, str)
+        or not root_value
+        or not isinstance(files_value, list)
+    ):
+        return False, ()
+    root = Path(root_value).expanduser().resolve(strict=False)
+    changes: list[str] = []
+    seen: set[str] = set()
+    for raw_entry in cast(list[object], files_value):
+        if not isinstance(raw_entry, dict):
+            return False, ()
+        entry = cast(dict[str, object], raw_entry)
+        relative_value = entry.get("path")
+        state = entry.get("state")
+        if (
+            not isinstance(relative_value, str)
+            or not relative_value
+            or relative_value in seen
+            or state not in {"file", "missing", "unreadable", "other"}
+        ):
+            return False, ()
+        seen.add(relative_value)
+        path = (root / relative_value).resolve(strict=False)
+        try:
+            path.relative_to(root)
+        except ValueError:
+            return False, ()
+        expected: dict[str, str] = {"state": cast(str, state)}
+        if state == "file":
+            sha256 = entry.get("sha256")
+            if not isinstance(sha256, str) or len(sha256) != 64:
+                return False, ()
+            expected["sha256"] = sha256
+        if _workspace_file_fingerprint(path) != expected:
+            changes.append(relative_value)
+    return True, tuple(changes)
 
 
 class RecoveryActionError(ValueError):
@@ -635,6 +723,7 @@ class RecoveryCoordinator:
             raise RecoveryActionError("recovery is not waiting for confirmation", status=409)
         if state.get("can_continue") is False:
             raise RecoveryActionError("recovery context is unavailable", status=409)
+        workspace_changed = state.get("reason") == "workspace_changed"
         next_state = self._set_state(
             session,
             status="resuming",
@@ -645,7 +734,12 @@ class RecoveryCoordinator:
         )
         self.sessions.save(session)
         await self._publish(chat_id, next_state)
-        await self._queue_continuation(session, chat_id, next_state)
+        await self._queue_continuation(
+            session,
+            chat_id,
+            next_state,
+            workspace_changed=workspace_changed,
+        )
         return next_state
 
     async def _recover_session(self, session: Session, chat_id: str) -> None:
@@ -761,6 +855,38 @@ class RecoveryCoordinator:
             self.sessions.save(session)
             await self._publish(chat_id, waiting)
             return
+        snapshot_valid, workspace_changes = _workspace_snapshot_changes(
+            checkpoint.get(WORKSPACE_SNAPSHOT_KEY) if checkpoint is not None else None
+        )
+        if not snapshot_valid:
+            _discard_runtime_checkpoint(session)
+            restore_pending_interruption(session)
+            waiting = self._set_state(
+                session,
+                status="awaiting_user",
+                recovery_id=recovery_id,
+                attempts=0,
+                reason="checkpoint_invalid",
+                can_continue=False,
+                parent_run_id=parent_run_id,
+            )
+            self.sessions.save(session)
+            await self._publish(chat_id, waiting)
+            return
+        if workspace_changes:
+            restore_runtime_checkpoint(session)
+            session.provider_state = None
+            waiting = self._set_state(
+                session,
+                status="awaiting_user",
+                recovery_id=recovery_id,
+                attempts=0,
+                reason="workspace_changed",
+                parent_run_id=parent_run_id,
+            )
+            self.sessions.save(session)
+            await self._publish(chat_id, waiting)
+            return
         if phase == "final_response":
             restore_runtime_checkpoint(session)
             recovered = self._set_state(
@@ -807,6 +933,8 @@ class RecoveryCoordinator:
         session: Session,
         chat_id: str,
         state: Mapping[str, Any],
+        *,
+        workspace_changed: bool = False,
     ) -> None:
         recovery_id = cast(str, state["recovery_id"])
         await self.bus.publish_inbound(
@@ -815,7 +943,11 @@ class RecoveryCoordinator:
                 sender_id="system:recovery",
                 chat_id=chat_id,
                 content=(
-                    "Continue the interrupted request from the saved conversation context. "
+                    "The workspace changed after the recovery checkpoint. Re-read any files "
+                    "needed for the task and re-plan from their current contents. Do not rely "
+                    "on saved file contents or overwrite newer user changes."
+                    if workspace_changed
+                    else "Continue the interrupted request from the saved conversation context. "
                     "Do not repeat completed work or mention the restart unless it affects the answer."
                 ),
                 metadata={

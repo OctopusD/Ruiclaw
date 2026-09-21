@@ -97,8 +97,10 @@ from ruiclaw.session.model_selection import (
 from ruiclaw.session.recovery import (
     PENDING_FOLLOWUP_ID_KEY,
     RECOVERY_INBOUND_METADATA_KEY,
+    WORKSPACE_SNAPSHOT_KEY,
     RecoveryAdmission,
     acknowledge_pending_followups,
+    capture_workspace_snapshot,
     record_pending_followup,
     restore_pending_interruption,
     restore_runtime_checkpoint,
@@ -992,24 +994,6 @@ class AgentLoop:
         """
         self._sync_subagent_runtime_limits()
 
-        async def _checkpoint(payload: dict[str, Any]) -> None:
-            if session is None:
-                return
-            public_payload = dict(payload)
-            if request_context is not None and request_context.run_id is not None:
-                public_payload[RUN_ID_METADATA_KEY] = request_context.run_id
-            private_state = public_payload.pop("provider_state", None)
-            public_payload.pop(self._PROVIDER_STATE_CHECKPOINT_VERSION_KEY, None)
-            if "provider_state" in payload and (
-                private_state is None
-                or isinstance(private_state, ProviderConversationState)
-            ):
-                session.provider_state = private_state
-                public_payload[self._PROVIDER_STATE_CHECKPOINT_VERSION_KEY] = (
-                    self._PROVIDER_STATE_CHECKPOINT_VERSION
-                )
-            self._set_runtime_checkpoint(session, public_payload)
-
         async def _drain_pending(
             *,
             limit: int = _MAX_INJECTIONS_PER_TURN,
@@ -1160,10 +1144,33 @@ class AgentLoop:
                 workspace=effective_scope.project_path,
             )
         effective_tools = tools or self.tools
-        file_state_token = bind_file_states(self._file_state_store.for_session(active_session_key))
+        file_states = self._file_state_store.for_session(active_session_key)
+        file_state_token = bind_file_states(file_states)
         request_token = bind_request_context(request_ctx)
         workspace_token = bind_workspace_scope(effective_scope)
         turn_scope_stack = ExitStack()
+
+        async def _checkpoint(payload: dict[str, Any]) -> None:
+            if session is None:
+                return
+            public_payload = dict(payload)
+            if request_context is not None and request_context.run_id is not None:
+                public_payload[RUN_ID_METADATA_KEY] = request_context.run_id
+            public_payload[WORKSPACE_SNAPSHOT_KEY] = capture_workspace_snapshot(
+                effective_scope.project_path,
+                file_states.raw_state(),
+            )
+            private_state = public_payload.pop("provider_state", None)
+            public_payload.pop(self._PROVIDER_STATE_CHECKPOINT_VERSION_KEY, None)
+            if "provider_state" in payload and (
+                private_state is None
+                or isinstance(private_state, ProviderConversationState)
+            ):
+                session.provider_state = private_state
+                public_payload[self._PROVIDER_STATE_CHECKPOINT_VERSION_KEY] = (
+                    self._PROVIDER_STATE_CHECKPOINT_VERSION
+                )
+            self._set_runtime_checkpoint(session, public_payload)
         # Compute lazily because create_goal may create goal metadata during this run.
         def _goal_continue() -> str | None:
             _goal_lines = goal_state_runtime_lines(session.metadata if session is not None else None)
