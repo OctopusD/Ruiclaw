@@ -8,7 +8,7 @@ import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ruiclaw.runtime_context import RuntimeContextBlock, wrap_runtime_context_lines
 
@@ -101,7 +101,10 @@ class RunProgressTracker:
         if self.persist_path is None or not self.persist_path.is_file():
             return
         try:
-            payload = json.loads(self.persist_path.read_text(encoding="utf-8"))
+            payload_value: object = json.loads(self.persist_path.read_text(encoding="utf-8"))
+            if not isinstance(payload_value, dict):
+                return
+            payload = cast(dict[str, Any], payload_value)
             if payload.get("run_id") != self.snapshot.run_id:
                 return
             for key in (
@@ -158,6 +161,7 @@ class RunProgressTracker:
             target = ""
             arguments = getattr(call, "arguments", None)
             if isinstance(arguments, dict):
+                arguments = cast(dict[str, Any], arguments)
                 for key in ("path", "file", "query", "command", "url"):
                     if arguments.get(key):
                         target = _short(arguments[key])

@@ -578,7 +578,7 @@ class LiveSelfEvolutionBenchmarkEvaluator:
         learning_task_count: int = 2,
         holdout_task_count: int = 4,
         keep_workspaces: bool = True,
-        bot_factory: BotFactory = _build_live_bot,
+        bot_factory: BotFactory = cast(BotFactory, _build_live_bot),
     ) -> None:
         self.artifact_path = _resolve_outside_runtime(artifact_path, label="artifact")
         self.report_path = _resolve_outside_runtime(report_path, label="report")

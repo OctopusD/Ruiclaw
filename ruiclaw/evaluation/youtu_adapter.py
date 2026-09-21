@@ -5,6 +5,9 @@ Youtu's ``BaseBenchmark`` to :func:`create_youtu_benchmark` from the launcher
 that runs inside a Youtu-Agent environment.
 """
 
+# Youtu's benchmark base class is injected by the optional runner environment.
+# pyright: reportUntypedBaseClass=false, reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false, reportArgumentType=false
+
 from __future__ import annotations
 
 import json

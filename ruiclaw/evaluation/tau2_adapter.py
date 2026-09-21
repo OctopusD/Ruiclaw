@@ -4,6 +4,10 @@ The adapter has no import-time dependency on tau2.  The launcher injects its
 message and agent classes, keeping the benchmark an optional development tool.
 """
 
+# The Tau classes are injected by the optional benchmark environment at runtime.
+# Keep strict checking for RuiClaw code while treating that dynamic boundary as Any.
+# pyright: reportUntypedBaseClass=false, reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false, reportAttributeAccessIssue=false, reportArgumentType=false
+
 from __future__ import annotations
 
 import asyncio

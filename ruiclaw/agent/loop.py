@@ -345,8 +345,8 @@ class AgentLoop:
         self.workspace = workspace
         self.evolution_settings = evolution_settings or EvolutionSettings()
         # A few lightweight unit tests construct the loop with a mocked workspace.
-        # Do not touch the filesystem until a real Path-backed runtime is used.
-        if isinstance(self.workspace, Path):
+        # Do not let that test double prevent the normal runtime from starting.
+        try:
             self._evolution_store: EvolutionStateStore | None = EvolutionStateStore(
                 self.workspace, self.evolution_settings
             )
@@ -354,7 +354,7 @@ class AgentLoop:
                 self._evolution_store,
                 self._review_evolution_batch,
             )
-        else:
+        except (OSError, TypeError, ValueError):
             self._evolution_store = None
             self._evolution_coordinator = None
         initial_model = model or provider.get_default_model()
@@ -1903,14 +1903,17 @@ class AgentLoop:
         try:
             await ctx.run_ledger.finish(status, stop_reason=stop_reason)
             if status == "succeeded":
-                report = json.loads(ctx.run_ledger.report_path.read_text(encoding="utf-8"))
+                report_value: object = json.loads(
+                    ctx.run_ledger.report_path.read_text(encoding="utf-8")
+                )
+                report = cast(dict[str, Any], report_value) if isinstance(report_value, dict) else {}
                 observation = observation_from_run(
                     run_id=ctx.run_id,
                     session_key=ctx.session_key,
                     turn_id=ctx.turn_id,
                     status=status,
                     user_text=ctx.original_user_text,
-                    report=report if isinstance(report, dict) else {},
+                    report=report,
                     run_kind=ctx.run_kind,
                 )
                 if observation is not None:

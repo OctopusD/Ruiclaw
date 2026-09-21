@@ -5,6 +5,9 @@ checkout on ``sys.path``.  Keeping this module free of a nanobot import means
 RuiClaw users do not need nanobot installed for normal use.
 """
 
+# Nanobot and Youtu types are supplied by the external benchmark checkout.
+# pyright: reportUntypedBaseClass=false, reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false, reportArgumentType=false
+
 from __future__ import annotations
 
 import json
