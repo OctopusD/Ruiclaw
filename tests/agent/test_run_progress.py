@@ -6,6 +6,8 @@ from ruiclaw.agent.run_progress import RunProgressTracker
 
 def test_tracker_records_completed_failed_and_pending_actions() -> None:
     tracker = RunProgressTracker("run-1", "session-1")
+    tracker.set_goal("finish the project tests")
+    assert tracker.snapshot.current_goal == "finish the project tests"
     tracker.set_pending([
         {"id": "call-1", "function": {"name": "read_file"}},
         {"id": "call-2", "function": {"name": "pytest"}},
@@ -32,6 +34,8 @@ def test_tracker_records_completed_failed_and_pending_actions() -> None:
     ]
     assert tracker.snapshot.failed_actions[0]["error_summary"] == "import error"
     assert "pytest" in tracker.snapshot.resume_hint
+    tracker.set_blocker("pytest needs an import fix")
+    assert tracker.snapshot.blocker == "pytest needs an import fix"
     assert "Current Run Progress" in tracker.snapshot.render()
 
 

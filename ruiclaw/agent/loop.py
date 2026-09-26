@@ -39,6 +39,7 @@ from ruiclaw.agent.evolution import (
 from ruiclaw.agent.hook import AgentHook, AgentTurnHookFactory
 from ruiclaw.agent.memory import Consolidator
 from ruiclaw.agent.model_runtime import ModelRuntimeResolver
+from ruiclaw.agent.run_progress import RunProgressHook, RunProgressTracker
 from ruiclaw.agent.runner import (
     _MAX_INJECTIONS_PER_TURN,
     AgentRunner,
@@ -183,6 +184,7 @@ class TurnContext:
 
     events: EventSink = NO_EVENTS
     run_ledger: RunLedger | None = None
+    run_progress: RunProgressTracker | None = None
     streaming: bool = False
     on_runtime_admitted: Callable[[LLMRuntime], Awaitable[None]] | None = None
 
@@ -1859,6 +1861,12 @@ class AgentLoop:
             )
             try:
                 await ctx.run_ledger.start()
+                ctx.run_progress = RunProgressTracker(
+                    ctx.run_id,
+                    ctx.session_key,
+                    persist_path=ctx.run_ledger.run_dir / "progress.json",
+                )
+                ctx.run_progress.set_goal(ctx.original_user_text)
             except Exception:
                 logger.exception("Failed to start Run ledger for {}", ctx.run_id)
                 ctx.run_ledger = None
@@ -1898,6 +1906,8 @@ class AgentLoop:
         status: str,
         stop_reason: str | None,
     ) -> None:
+        if ctx.run_progress is not None:
+            ctx.run_progress.finish("completed" if status == "succeeded" else status)
         if ctx.run_ledger is None:
             return
         try:
@@ -2152,6 +2162,8 @@ class AgentLoop:
         ctx.request_context = self._request_context_for_turn(ctx)
         if ctx.kind is TurnKind.USER:
             ctx.runtime_context_blocks = await self._resolve_runtime_context_for_turn(ctx)
+            if ctx.run_progress is not None:
+                ctx.runtime_context_blocks.append(ctx.run_progress.runtime_context_block())
         staged_provider_state = False
         if stored_state is not None and runtime.provider.can_resume_conversation_state(
             stored_state,
@@ -2202,7 +2214,14 @@ class AgentLoop:
             ctx.input_persisted_early = self._persist_user_message_early(
                 ctx.msg,
                 session,
-                runtime_context_blocks=ctx.runtime_context_blocks,
+                # Run progress is a per-run recovery view, not part of the
+                # durable conversation transcript. It is injected into the
+                # current model request and persisted separately in progress.json.
+                runtime_context_blocks=[
+                    block
+                    for block in ctx.runtime_context_blocks
+                    if block.source != "run_progress"
+                ],
                 _ruiclaw_run_id=ctx.run_id,
             )
             if staged_provider_state and not ctx.input_persisted_early:
@@ -2231,6 +2250,7 @@ class AgentLoop:
             if ctx.run_ledger is not None
             else []
         )
+        progress_hooks = [RunProgressHook(ctx.run_progress)] if ctx.run_progress else []
         memory_hooks = (
             [WorkingMemoryHook(ctx.request_context.workspace or self.workspace)]
             if ctx.kind is TurnKind.USER
@@ -2247,7 +2267,7 @@ class AgentLoop:
                 pending_queue=ctx.pending_queue,
                 ephemeral=ctx.ephemeral,
                 run_extra_hooks_for_ephemeral=ctx.run_extra_hooks_for_ephemeral,
-                hooks=[*ctx.hooks, *memory_hooks, *ledger_hooks],
+                hooks=[*ctx.hooks, *memory_hooks, *ledger_hooks, *progress_hooks],
                 hook_factories=ctx.hook_factories,
                 turn_scopes=ctx.turn_scopes,
                 tools=ctx.tools,

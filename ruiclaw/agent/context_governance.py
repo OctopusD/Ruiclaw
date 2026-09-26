@@ -65,6 +65,14 @@ ProviderCompactionConsolidator = Callable[
 ]
 
 SNIP_SAFETY_BUFFER = 1024
+# Microcompact is deliberately a cheap, deterministic step before the more
+# expensive summary-based auto compact.  It only clears old tool-result bodies
+# from the model-facing copy; the persisted transcript and tool-result artifact
+# files remain untouched.
+MICROCOMPACT_TRIGGER_RATIO = 0.70
+MICROCOMPACT_KEEP_RECENT_TOOL_RESULTS = 5
+MICROCOMPACT_CLEARED_TEXT = "[Old tool result content cleared]"
+AUTO_COMPACT_TRIGGER_RATIO = 0.85
 # read_file has its own bound; exempt it to avoid persist->read->persist loops.
 TOOL_RESULT_OFFLOAD_EXEMPT_TOOLS = frozenset({"read_file"})
 BACKFILL_CONTENT = "[Tool result unavailable — call was interrupted or lost]"
@@ -119,6 +127,9 @@ class ContextGovernanceConfig:
     max_tool_result_chars: int
     context_window_tokens: int | None = None
     max_tokens: int | None = None
+    microcompact_trigger_ratio: float = MICROCOMPACT_TRIGGER_RATIO
+    microcompact_keep_recent_tool_results: int = MICROCOMPACT_KEEP_RECENT_TOOL_RESULTS
+    auto_compact_trigger_ratio: float = AUTO_COMPACT_TRIGGER_RATIO
 
 
 @dataclass(slots=True)
@@ -206,6 +217,21 @@ class ModelRequestState:
 
 class ContextGovernor:
     """Own model-request context while preserving persisted history."""
+
+    @staticmethod
+    def _auto_compact_ratio(
+        config: ContextGovernanceConfig,
+        compaction: ContextCompactionState | None,
+    ) -> float:
+        """Return the early-compaction threshold for a meaningful history.
+
+        The first request can have a large fixed system/tool prefix without
+        any conversation history to summarize.  Do not spend an LLM call on
+        that case; the hard budget check remains the fallback.
+        """
+        if compaction is None or len(compaction.accepted_messages) <= 1:
+            return 1.0
+        return config.auto_compact_trigger_ratio
 
     @staticmethod
     def _merge_message_content(left: Any, right: Any) -> str | list[dict[str, Any]]:
@@ -322,6 +348,80 @@ class ContextGovernor:
         governed = self.prepare_for_model(config, messages)
         return self._merge_adjacent_user_messages_for_model(governed)
 
+    @staticmethod
+    def microcompact_tool_results(
+        config: ContextGovernanceConfig,
+        messages: list[dict[str, Any]],
+        *,
+        tool_definitions: list[dict[str, Any]] | None,
+    ) -> list[dict[str, Any]]:
+        """Clear older tool-result bodies when a request starts getting large.
+
+        This is intentionally not a summarization step.  It is a bounded,
+        model-facing projection: recent results, failures, and already-short
+        results remain available, while older successful results become a
+        stable marker.  The source transcript is never mutated, so audit and
+        recovery still see the complete result (or its persisted artifact).
+        """
+        if not messages or not config.context_window_tokens:
+            return messages
+        if not any(message.get("role") == "tool" for message in messages):
+            return messages
+        budget = ContextGovernor.input_budget(config)
+        if budget <= 0:
+            return messages
+        try:
+            estimated, _ = estimate_prompt_tokens_chain(
+                config.provider,
+                config.model,
+                messages,
+                tool_definitions,
+            )
+        except Exception:
+            # A provider-specific estimator must not make context preparation
+            # fail.  The normal request-pressure check will provide the final
+            # decision using its own fallback path.
+            estimated = sum(estimate_message_tokens(message) for message in messages)
+        trigger = max(0.1, min(0.99, config.microcompact_trigger_ratio))
+        if estimated < int(budget * trigger):
+            return messages
+
+        tool_indexes = [
+            index
+            for index, message in enumerate(messages)
+            if message.get("role") == "tool"
+            and message.get("content") != MICROCOMPACT_CLEARED_TEXT
+        ]
+        keep_recent = max(1, config.microcompact_keep_recent_tool_results)
+        if len(tool_indexes) <= keep_recent:
+            return messages
+
+        keep_indexes = set(tool_indexes[-keep_recent:])
+        # Keep errors because they are usually the most useful recovery signal.
+        clear_indexes = [
+            index
+            for index in tool_indexes[:-keep_recent]
+            if index not in keep_indexes
+            and not (
+                isinstance(messages[index].get("content"), str)
+                and str(messages[index]["content"]).lstrip().lower().startswith(("error", "failed"))
+            )
+        ]
+        if not clear_indexes:
+            return messages
+
+        compacted = [dict(message) for message in messages]
+        for index in clear_indexes:
+            compacted[index]["content"] = MICROCOMPACT_CLEARED_TEXT
+        logger.info(
+            "Microcompact cleared {} old tool result(s) for {} (estimated {} / budget {})",
+            len(clear_indexes),
+            config.session_key or "default",
+            estimated,
+            budget,
+        )
+        return compacted
+
     def prepare_for_model(
         self,
         config: ContextGovernanceConfig,
@@ -390,6 +490,7 @@ class ContextGovernor:
         usage_matches_messages: bool,
         tool_definitions: list[dict[str, Any]] | None,
         request_context_tokens: int | None = None,
+        trigger_ratio: float = 1.0,
     ) -> tuple[int, str] | None:
         """Return the authoritative measurement when a request is pressured."""
         if not config.context_window_tokens:
@@ -412,7 +513,8 @@ class ContextGovernor:
                 messages,
                 tool_definitions,
             )
-        if budget > 0 and measured < budget:
+        ratio = max(0.1, min(1.0, trigger_ratio))
+        if budget > 0 and measured < int(budget * ratio):
             return None
         return measured, source
 
@@ -587,6 +689,15 @@ class ContextGovernor:
     ) -> tuple[list[dict[str, Any]], ProviderCallContext | None]:
         """Prepare, compact or fit, and record the exact provider payload."""
         prepared = self.prepare_messages_for_model(state.config, messages)
+        # Keep this before request-pressure measurement so the freed result
+        # bodies are reflected in the authoritative estimate.  If the request
+        # is still over budget, the existing summary-based auto-compact path
+        # below remains the final fallback.
+        prepared = self.microcompact_tool_results(
+            state.config,
+            prepared,
+            tool_definitions=tool_definitions,
+        )
         model_messages: list[dict[str, Any]] | None = prepared
         supplemental_messages: list[dict[str, Any]] | None = None
         request_context_tokens = None
@@ -616,6 +727,7 @@ class ContextGovernor:
                 usage_matches_messages=usage_matches_messages,
                 tool_definitions=tool_definitions,
                 request_context_tokens=request_context_tokens,
+                trigger_ratio=self._auto_compact_ratio(state.config, compaction),
             )
             if pressure is not None:
                 request_was_compacted = True
@@ -646,6 +758,7 @@ class ContextGovernor:
                 usage_matches_messages=usage_matches_messages,
                 tool_definitions=tool_definitions,
                 request_context_tokens=request_context_tokens,
+                trigger_ratio=self._auto_compact_ratio(state.config, compaction),
             )
             if pressure is not None:
                 request_was_compacted = True

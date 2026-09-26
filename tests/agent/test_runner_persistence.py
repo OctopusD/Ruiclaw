@@ -161,6 +161,50 @@ def test_persist_tool_result_leaves_no_temp_files(tmp_path):
     assert list((root / "current_session").glob("*.tmp")) == []
 
 
+def test_microcompact_clears_old_tool_results_but_keeps_recent_and_errors(monkeypatch):
+    from ruiclaw.agent.context_governance import ContextGovernanceConfig, ContextGovernor
+    from ruiclaw.agent.tools.registry import ToolRegistry
+
+    provider = MagicMock()
+    config = ContextGovernanceConfig(
+        provider=provider,
+        model="test",
+        tools=ToolRegistry(),
+        workspace=None,
+        session_key="test:microcompact",
+        max_tool_result_chars=2048,
+        context_window_tokens=10_000,
+        max_tokens=0,
+        microcompact_keep_recent_tool_results=2,
+    )
+    messages = [
+        {"role": "user", "content": "start"},
+        {"role": "tool", "tool_call_id": "one", "name": "exec", "content": "old one"},
+        {"role": "tool", "tool_call_id": "two", "name": "exec", "content": "Error: old failure"},
+        {"role": "tool", "tool_call_id": "three", "name": "exec", "content": "old three"},
+        {"role": "tool", "tool_call_id": "four", "name": "exec", "content": "recent four"},
+        {"role": "tool", "tool_call_id": "five", "name": "exec", "content": "recent five"},
+    ]
+    monkeypatch.setattr(
+        "ruiclaw.agent.context_governance.estimate_prompt_tokens_chain",
+        lambda *_args, **_kwargs: (8_000, "test"),
+    )
+
+    compacted = ContextGovernor.microcompact_tool_results(
+        config,
+        messages,
+        tool_definitions=None,
+    )
+
+    assert compacted is not messages
+    assert compacted[1]["content"] == "[Old tool result content cleared]"
+    assert compacted[2]["content"] == "Error: old failure"
+    assert compacted[3]["content"] == "[Old tool result content cleared]"
+    assert compacted[4]["content"] == "recent four"
+    assert compacted[5]["content"] == "recent five"
+    assert messages[1]["content"] == "old one"
+
+
 def test_persist_tool_result_logs_cleanup_failures(monkeypatch, tmp_path):
     from ruiclaw.utils.helpers import maybe_persist_tool_result
 
