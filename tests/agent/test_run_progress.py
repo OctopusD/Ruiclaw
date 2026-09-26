@@ -8,6 +8,7 @@ def test_tracker_records_completed_failed_and_pending_actions() -> None:
     tracker = RunProgressTracker("run-1", "session-1")
     tracker.set_goal("finish the project tests")
     assert tracker.snapshot.current_goal == "finish the project tests"
+    assert not tracker.has_meaningful_progress()
     tracker.set_pending([
         {"id": "call-1", "function": {"name": "read_file"}},
         {"id": "call-2", "function": {"name": "pytest"}},
@@ -36,6 +37,7 @@ def test_tracker_records_completed_failed_and_pending_actions() -> None:
     assert "pytest" in tracker.snapshot.resume_hint
     tracker.set_blocker("pytest needs an import fix")
     assert tracker.snapshot.blocker == "pytest needs an import fix"
+    assert tracker.has_meaningful_progress()
     assert "Current Run Progress" in tracker.snapshot.render()
 
 

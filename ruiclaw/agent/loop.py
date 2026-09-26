@@ -2162,7 +2162,7 @@ class AgentLoop:
         ctx.request_context = self._request_context_for_turn(ctx)
         if ctx.kind is TurnKind.USER:
             ctx.runtime_context_blocks = await self._resolve_runtime_context_for_turn(ctx)
-            if ctx.run_progress is not None:
+            if ctx.run_progress is not None and ctx.run_progress.has_meaningful_progress():
                 ctx.runtime_context_blocks.append(ctx.run_progress.runtime_context_block())
         staged_provider_state = False
         if stored_state is not None and runtime.provider.can_resume_conversation_state(

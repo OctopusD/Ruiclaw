@@ -99,6 +99,24 @@ class RunProgressSnapshot:
     def runtime_context_block(self) -> RuntimeContextBlock:
         return RuntimeContextBlock(source="run_progress", content=self.render())
 
+    def has_meaningful_progress(self) -> bool:
+        """Whether the snapshot contains state worth adding to the prompt.
+
+        The initial goal is already present in the user's message.  Injecting
+        an empty snapshot on the first request only duplicates that message
+        and needlessly changes compaction/provider payloads.
+        """
+        return bool(
+            self.completed_actions
+            or self.failed_actions
+            or self.pending_actions
+            or self.artifacts
+            or self.blocker
+            or self.resume_hint
+            or self.last_checkpoint_id
+            or self.status not in {"running", "pending"}
+        )
+
 
 class RunProgressTracker:
     """Build a deterministic progress snapshot from runner-visible events."""
@@ -175,6 +193,10 @@ class RunProgressTracker:
         if self.snapshot.current_goal is None and goal:
             self.snapshot.current_goal = _short(goal)
             self._touch()
+
+    def has_meaningful_progress(self) -> bool:
+        """Whether the snapshot contains state worth adding to the prompt."""
+        return self.snapshot.has_meaningful_progress()
 
     def set_pending(self, tool_calls: list[dict[str, Any]]) -> None:
         self.snapshot.pending_actions = [
