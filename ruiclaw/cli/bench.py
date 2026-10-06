@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import cast
 
@@ -21,6 +22,8 @@ from ruiclaw.evaluation.evolver import (
     DEFAULT_EVOLVER_WORKSPACE_ROOT,
     run_evolver_evaluation,
 )
+from ruiclaw.evaluation.gdpevo import load_task_group, write_execution_plan
+from ruiclaw.evaluation.gdpevo_live import render_gdpevo_report, run_gdpevo_ab_sync
 from ruiclaw.evaluation.memory_bench import (
     DEFAULT_MEMORY_ARTIFACT_PATH,
     DEFAULT_MEMORY_WORKSPACE_ROOT,
@@ -39,6 +42,63 @@ from ruiclaw.evaluation.tool_governance_bench import (
 
 bench_app = typer.Typer(help="Run deterministic RuiClaw harness benchmarks")
 console = Console()
+
+
+@bench_app.command("gdpevo-plan")
+def gdpevo_plan(
+    dataset_root: Path = typer.Option(Path("GDPevo"), "--dataset-root"),
+    task_group: str = typer.Option(..., "--task-group"),
+    output: Path = typer.Option(Path("benchmarks/results/gdpevo/plan.json"), "--output", "-o"),
+) -> None:
+    """Validate one GDPevo group and write its isolated train/test execution plan."""
+    try:
+        group = load_task_group(dataset_root, task_group)
+        plan = write_execution_plan(group, output)
+    except (OSError, ValueError) as exc:
+        console.print(f"[red]GDPevo plan failed:[/red] {exc}")
+        raise typer.Exit(1) from exc
+
+    console.print(
+        f"GDPevo {plan['task_group']}: {len(group.train_tasks)} train / "
+        f"{len(group.test_tasks)} test tasks; environment={group.state_mode}"
+    )
+    console.print(f"Plan: {output.resolve()}")
+
+
+@bench_app.command("gdpevo")
+def gdpevo(
+    config: Path = typer.Option(..., "--config", exists=True, readable=True),
+    dataset_root: Path = typer.Option(Path("GDPevo"), "--dataset-root"),
+    task_group: str = typer.Option(..., "--task-group"),
+    environment_url: str = typer.Option(..., "--environment-url"),
+    output: Path = typer.Option(Path("benchmarks/results/gdpevo/result.json"), "--output", "-o"),
+    workspace_root: Path = typer.Option(
+        Path("benchmarks/results/gdpevo/workspaces"), "--workspace-root"
+    ),
+    model_preset: str | None = typer.Option(None, "--model-preset"),
+) -> None:
+    """Run a GDPevo train-only evolution A/B evaluation for one read-only group."""
+    try:
+        group = load_task_group(dataset_root, task_group)
+        artifact = run_gdpevo_ab_sync(
+            group=group,
+            config_path=config,
+            workspace_root=workspace_root,
+            environment_url=environment_url,
+            model_preset=model_preset,
+        )
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(artifact, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        report = output.with_suffix(".md")
+        report.write_text(render_gdpevo_report(artifact), encoding="utf-8")
+    except (OSError, RuntimeError, ValueError) as exc:
+        console.print(f"[red]GDPevo evaluation failed:[/red] {exc}")
+        raise typer.Exit(1) from exc
+
+    comparison = cast(dict[str, object], artifact["comparison"])
+    console.print(f"GDPevo {task_group} complete; test score lift: {comparison['test_score_lift']}")
+    console.print(f"Evidence: {output.resolve()}")
+    console.print(f"Report: {report.resolve()}")
 
 
 @bench_app.command("evolve")

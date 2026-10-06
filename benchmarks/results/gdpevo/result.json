@@ -1,0 +1,690 @@
+{
+  "schema_version": 1,
+  "benchmark": "gdpevo-ruiclaw-ab",
+  "task_group": "task_group_001",
+  "environment_url": "http://127.0.0.1:9001",
+  "information_boundary": "train answers/evaluators are never supplied to the agent; test scoring is private",
+  "results": {
+    "baseline": {
+      "train": [],
+      "review": {
+        "requested": false,
+        "changed_files": []
+      },
+      "promoted_changes": [],
+      "test": [
+        {
+          "id": "test_001",
+          "content": "```json\n{\n  \"task_id\": \"test_001\",\n  \"event\": {\n    \"event_id\": \"predictive_ops_2027\",\n    \"event_name\": \"Predictive Ops Summit 2027\",\n    \"lead_followup_due_date\": \"2027-04-01\",\n    \"sponsor_finance_due_date\": \"2027-03-28\"\n  },\n  \"sponsor_statuses\": [\n    {\n      \"account_id\": \"acct_fathom_ops\",\n      \"account_name\": \"Fathom Ops\",\n      \"status\": \"paid_deferred\",\n      \"package_amount\": 72000,\n      \"invoice_ids\": [\"inv_pops_3001\"],\n      \"paid_amount\": 72000,\n      \"open_balance\": 0\n    },\n    {\n      \"account_id\": \"acct_lumina_mfg\",\n      \"account_name\": \"Lumina Manufacturing\",\n      \"status\": \"open_invoice\",\n      \"package_amount\": 42000,\n      \"invoice_ids\": [\"inv_pops_3002a\", \"inv_pops_3002b\"],\n      \"paid_amount\": 26000,\n      \"open_balance\": 16000\n    },\n    {\n      \"account_id\": \"acct_orbitrail\",\n      \"account_name\": \"OrbitRail Systems\",\n      \"status\": \"proposal_only\",\n      \"package_amount\": 22000,\n      \"invoice_ids\": [],\n      \"paid_amount\": 0,\n      \"open_balance\": 0\n    }\n  ],\n  \"sponsor_revenue_totals\": {\n    \"paid_deferred\": 72000,\n    \"open_invoice\": 42000,\n    \"proposal_only\": 22000,\n    \"open_invoice_balance\": 16000\n  },\n  \"lead_opportunity_plan\": {\n    \"qualified_lead_accounts\": [\n      {\n        \"account_name\": \"Cascadia Steel\",\n        \"account_id\": null,\n        \"primary_contact\": \"Miles Chen\",\n        \"normalized_email\": \"miles.chen@cascadiasteel.example\",\n        \"normalized_phone\": \"15035550114\",\n        \"crm_account_action\": \"create_account\",\n        \"crm_contact_action\": \"create_contact\",\n        \"campaign_member_action\": \"add_campaign_member\",\n        \"opportunity_amount\": 51000\n      },\n      {\n        \"account_name\": \"Riverbend Chemical\",\n        \"account_id\": \"acct_riverbend_chem\",\n        \"primary_contact\": \"Hana Park\",\n        \"normalized_email\": \"hana.park@riverbendchem.example\",\n        \"normalized_phone\": \"17135550138\",\n        \"crm_account_action\": \"update_existing\",\n        \"crm_contact_action\": \"update_existing\",\n        \"campaign_member_action\": \"update_campaign_member\",\n        \"opportunity_amount\": 51000\n      }\n    ],\n    \"lead_pipeline_total\": 102000,\n    \"average_deal_size\": 51000.00\n  },\n  \"excluded_records\": [\n    {\n      \"company_name\": \"Fathom Ops\",\n      \"contact_name\": \"Cole Ivers\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"sponsor_attendee\"\n    },\n    {\n      \"company_name\": \"Fathom Ops\",\n      \"contact_name\": \"Sofia Meyer\",\n      \"source\": \"campaign_member\",\n      \"reason\": \"stale_crm_duplicate\"\n    },\n    {\n      \"company_name\": \"Keystone AGV\",\n      \"contact_name\": \"Anika Shah\",\n      \"source\": \"sponsor_package\",\n      \"reason\": \"inactive_sponsor_record\"\n    },\n    {\n      \"company_name\": \"Lumina Manufacturing\",\n      \"contact_name\": \"Nadia Volk\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"sponsor_attendee\"\n    },\n    {\n      \"company_name\": \"Old Quarry Logistics\",\n      \"contact_name\": \"Rhea Moon\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"existing_disqualified\"\n    },\n    {\n      \"company_name\": \"Pacific Robotics Review\",\n      \"contact_name\": \"Dev Singh\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"non_business_badge\"\n    }\n  ],\n  \"follow_up\": {\n    \"lead_due_date\": \"2027-04-01\",\n    \"lead_task_count\": 2,\n    \"sponsor_finance_due_date\": \"2027-03-28\",\n    \"sponsor_finance_task_count\": 2,\n    \"sponsor_finance_accounts\": [\"Lumina Manufacturing\", \"OrbitRail Systems\"]\n  },\n  \"crm_action_counts\": {\n    \"accounts_create\": 1,\n    \"accounts_update\": 1,\n    \"contacts_create\": 1,\n    \"contacts_update\": 1,\n    \"campaign_members_create\": 1,\n    \"campaign_members_update\": 1\n  }\n}\n```",
+          "passed": false,
+          "score": {
+            "earned_score": 11,
+            "max_score": 16,
+            "points": [
+              {
+                "id": "SP001",
+                "label": "sponsor_status_set",
+                "max_score": 3,
+                "passed": true,
+                "score": 3
+              },
+              {
+                "id": "SP002",
+                "label": "sponsor_revenue_totals",
+                "max_score": 2,
+                "passed": false,
+                "score": 0
+              },
+              {
+                "id": "SP003",
+                "label": "qualified_non_sponsor_leads",
+                "max_score": 3,
+                "passed": false,
+                "score": 0
+              },
+              {
+                "id": "SP004",
+                "label": "excluded_records",
+                "max_score": 2,
+                "passed": true,
+                "score": 2
+              },
+              {
+                "id": "SP005",
+                "label": "lead_pipeline_total_and_average",
+                "max_score": 2,
+                "passed": true,
+                "score": 2
+              },
+              {
+                "id": "SP006",
+                "label": "follow_up_due_dates_and_counts",
+                "max_score": 3,
+                "passed": true,
+                "score": 3
+              },
+              {
+                "id": "SP007",
+                "label": "crm_action_counts",
+                "max_score": 1,
+                "passed": true,
+                "score": 1
+              }
+            ],
+            "total_score": 0.6875
+          },
+          "error": null
+        },
+        {
+          "id": "test_002",
+          "content": "```json\n{\n  \"show_id\": \"nordic_aqua_2027\",\n  \"campaign\": \"lakehealth_integration\",\n  \"qualified_exhibitors\": [\n    {\n      \"company_id\": \"exh_na_003\",\n      \"company_name\": \"FjordCam OEM\",\n      \"platforms\": [\"Underwater Camera\"],\n      \"priority_tier\": \"B\",\n      \"crm_account_id\": null,\n      \"crm_action\": \"create_account\",\n      \"pipeline_estimate_usd\": 72000,\n      \"booth\": \"N17\",\n      \"country\": \"Iceland\",\n      \"website\": \"https://fjordcam.example\"\n    },\n    {\n      \"company_id\": \"exh_na_002\",\n      \"company_name\": \"LakeHealth Robotics\",\n      \"platforms\": [\"AUV\"],\n      \"priority_tier\": \"A\",\n      \"crm_account_id\": \"acct_lakehealth\",\n      \"crm_action\": \"update_existing\",\n      \"pipeline_estimate_usd\": 92000,\n      \"booth\": \"N11\",\n      \"country\": \"Finland\",\n      \"website\": \"https://lakehealthrobotics.example\"\n    },\n    {\n      \"company_id\": \"exh_na_001\",\n      \"company_name\": \"Nordic Subsea Systems\",\n      \"platforms\": [\"AUV\", \"ROV\"],\n      \"priority_tier\": \"A\",\n      \"crm_account_id\": \"acct_nordic_subsea\",\n      \"crm_action\": \"update_existing\",\n      \"pipeline_estimate_usd\": 90000,\n      \"booth\": \"N03\",\n      \"country\": \"Norway\",\n      \"website\": \"https://nordicsubsea.example\"\n    }\n  ],\n  \"excluded_near_misses\": [\n    {\n      \"company_id\": \"exh_na_004\",\n      \"company_name\": \"AquaSense Nordic\",\n      \"exclusion_reason\": \"sensor_vendor_only\"\n    },\n    {\n      \"company_id\": \"exh_na_005\",\n      \"company_name\": \"Arctic ROV Rentals\",\n      \"exclusion_reason\": \"service_only\"\n    }\n  ],\n  \"aggregate_counts\": {\n    \"qualified_total\": 3,\n    \"platform_counts\": {\"AUV\": 2, \"ROV\": 1, \"Underwater Camera\": 1},\n    \"priority_counts\": {\"A\": 2, \"B\": 1, \"C\": 0},\n    \"excluded_near_misses_total\": 2,\n    \"create_account_count\": 1,\n    \"update_existing_count\": 2,\n    \"existing_crm_overlap_count\": 2,\n    \"existing_crm_overlap_account_ids\": [\"acct_lakehealth\", \"acct_nordic_subsea\"],\n    \"total_estimated_pipeline_usd\": 254000\n  }\n}\n```",
+          "passed": false,
+          "score": {
+            "points": [
+              {
+                "goal": "Correct qualified exhibitor set for Nordic Aquaculture Tech.",
+                "id": "SP001",
+                "passed": true,
+                "score": 0.136364,
+                "weight": 3
+              },
+              {
+                "goal": "Correct platform labels for each qualified exhibitor.",
+                "id": "SP002",
+                "passed": true,
+                "score": 0.136364,
+                "weight": 3
+              },
+              {
+                "goal": "Correct booth, country, and website enrichment.",
+                "id": "SP003",
+                "passed": true,
+                "score": 0.090909,
+                "weight": 2
+              },
+              {
+                "goal": "Correct exclusion of service-only and sensor-only near misses.",
+                "id": "SP004",
+                "passed": true,
+                "score": 0.090909,
+                "weight": 2
+              },
+              {
+                "goal": "Correct priority tier assignment.",
+                "id": "SP005",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct platform, priority, qualified, and exclusion aggregate counts.",
+                "id": "SP006",
+                "passed": false,
+                "score": 0.0,
+                "weight": 1
+              },
+              {
+                "goal": "Correct CRM action and existing account id per qualified exhibitor.",
+                "id": "SP007",
+                "passed": true,
+                "score": 0.136364,
+                "weight": 3
+              },
+              {
+                "goal": "Correct pipeline estimate per qualified exhibitor.",
+                "id": "SP008",
+                "passed": false,
+                "score": 0.0,
+                "weight": 3
+              },
+              {
+                "goal": "Correct CRM overlap and total estimated pipeline rollup.",
+                "id": "SP009",
+                "passed": false,
+                "score": 0.0,
+                "weight": 3
+              }
+            ],
+            "total_score": 0.590909
+          },
+          "error": null
+        },
+        {
+          "id": "test_003",
+          "content": "I've solved the task and written the result to `./answer.json`.\n\n## Approach\n\nThe API is intentionally thin, so I derived the batch's hygiene rules from the environment's `contact_hygiene` policy (`source_priority`, email/phone normalization, dedupe rule) and applied them to `q1_partner_import`:\n\n1. **Normalize** — email lowercased/trimmed; phone reduced to digits.\n2. **Drop unusable** — rows with neither email nor phone.\n3. **Dedupe** — key = `email:<normalized_email>` (else `phone_company:<phone>:<company>`); the winner is the row with the highest `source_priority` (`badge_scan > sponsor_form > partner_upload > webinar_form > exhibitor_form > manual_upload`).\n4. **Suppress** — remove rows matching the batch suppression list (by email/phone).\n5. **Resolve CRM action** — match an existing account by email domain or company name: match → `update_existing` (with matching contact by email/phone), else `create_account`.\n\nKey resolutions for this batch:\n- `q1_001` beats `q1_002` (partner_upload > manual_upload) → existing account Riverbend Chemical + contact (matched by phone) → `update_existing`.\n- `q1_008` beats `q1_007` (badge_scan > partner_upload) → new account Cascadia Steel → `create_account`.\n- `q1_003` → LakeHealth account exists → `update_existing`; `q1_004` → `create_account`.\n- `q1_005` removed (`missing_contact`); `q1_006` removed (`suppressed`, privacy_request).\n\n## Answer (also saved to `./answer.json`)\n\n```json\n{\n  \"batch_id\": \"q1_partner_import\",\n  \"campaign_code\": \"PARTNER-Q1-2027\",\n  \"clean_contacts\": [\n    {\"clean_contact_id\":\"q1_001\",\"source_row_id\":\"q1_001\",\"company_name\":\"Riverbend Chemical\",\"contact_name\":\"Hana Park\",\"email\":\"hana.park@riverbendchem.example\",\"phone\":\"17135550138\",\"source_name\":\"partner_upload\",\"captured_at\":\"2027-01-21T11:30:00Z\",\"crm_action\":\"update_existing\",\"existing_account_id\":\"acct_riverbend_chem\",\"existing_contact_id\":\"cont_hana_park\"},\n    {\"clean_contact_id\":\"q1_003\",\"source_row_id\":\"q1_003\",\"company_name\":\"LakeHealth Robotics\",\"contact_name\":\"Pia Norberg\",\"email\":\"pia.norberg@lakehealthrobotics.example\",\"phone\":\"358405550190\",\"source_name\":\"exhibitor_form\",\"captured_at\":\"2027-01-25T16:00:00Z\",\"crm_action\":\"update_existing\",\"existing_account_id\":\"acct_lakehealth\",\"existing_contact_id\":null},\n    {\"clean_contact_id\":\"q1_004\",\"source_row_id\":\"q1_004\",\"company_name\":\"DeltaForge Tools\",\"contact_name\":\"Noah Kim\",\"email\":\"\",\"phone\":\"12165550180\",\"source_name\":\"partner_upload\",\"captured_at\":\"2027-01-26T10:20:00Z\",\"crm_action\":\"create_account\",\"existing_account_id\":null,\"existing_contact_id\":null},\n    {\"clean_contact_id\":\"q1_008\",\"source_row_id\":\"q1_008\",\"company_name\":\"Cascadia Steel\",\"contact_name\":\"Miles Chen\",\"email\":\"miles.chen@cascadiasteel.example\",\"phone\":\"15035550114\",\"source_name\":\"badge_scan\",\"captured_at\":\"2027-03-24T17:00:00Z\",\"crm_action\":\"create_account\",\"existing_account_id\":null,\"existing_contact_id\":null}\n  ],\n  \"duplicate_summary\": {\n    \"duplicate_removed_count\": 2,\n    \"duplicate_keys\": [\n      {\"key\":\"email:hana.park@riverbendchem.example\",\"winner_row_id\":\"q1_001\",\"removed_row_ids\":[\"q1_002\"]},\n      {\"key\":\"email:miles.chen@cascadiasteel.example\",\"winner_row_id\":\"q1_008\",\"removed_row_ids\":[\"q1_007\"]}\n    ]\n  },\n  \"removal_summary\": {\n    \"unusable_removed_count\": 1,\n    \"suppressed_removed_count\": 1,\n    \"removed_rows\": [\n      {\"row_id\":\"q1_002\",\"reason\":\"duplicate\"},\n      {\"row_id\":\"q1_005\",\"reason\":\"missing_contact\"},\n      {\"row_id\":\"q1_006\",\"reason\":\"suppressed\"},\n      {\"row_id\":\"q1_007\",\"reason\":\"duplicate\"}\n    ]\n  },\n  \"import_action_totals\": {\"create_account\":2,\"update_existing\":2,\"no_import\":0,\"suppress\":0},\n  \"campaign_member_import\": {\"count\":4,\"source_label\":\"partner_and_manual_upload\"}\n}\n```",
+          "passed": false,
+          "score": {
+            "earned_points": 3,
+            "points": [
+              {
+                "id": "SP001",
+                "label": "Correct surviving cleaned contact IDs in order.",
+                "passed": false,
+                "score": 0,
+                "weight": 3
+              },
+              {
+                "id": "SP002",
+                "label": "Correct normalized email and phone values for key contacts.",
+                "passed": false,
+                "score": 0,
+                "weight": 3
+              },
+              {
+                "id": "SP003",
+                "label": "Correct duplicate resolution winners.",
+                "passed": false,
+                "score": 0,
+                "weight": 2
+              },
+              {
+                "id": "SP004",
+                "label": "Correct suppression and unusable removal counts.",
+                "passed": true,
+                "score": 2,
+                "weight": 2
+              },
+              {
+                "id": "SP005",
+                "label": "Correct create/update/no-import counts.",
+                "passed": false,
+                "score": 0,
+                "weight": 2
+              },
+              {
+                "id": "SP006",
+                "label": "Correct campaign member count and source label.",
+                "passed": true,
+                "score": 1,
+                "weight": 1
+              }
+            ],
+            "total_points": 13,
+            "total_score": 0.230769
+          },
+          "error": null
+        },
+        {
+          "id": "test_004",
+          "content": "`./answer.json` is written and validated against the template (all required top-level keys, item keys, allowed enum values, sort orders, and date/currency types check out).\n\n## Reconciliation summary — Industrial Vision AI Forum 2027\n\n**Event / due dates** (start 2027‑05‑18, end 2027‑05‑19)\n- Lead follow‑up: 2027‑05‑19 + 6 → **2027‑05‑25**\n- Sponsor follow‑up: 2027‑05‑19 + 3 → **2027‑05‑22**\n\n**Sponsor stages** (from sponsor orders × finance)\n| Account | Stage | USD |\n|---|---|---|\n| Mosaic AI Works | open_invoice | 24,000 |\n| Prairie Optics | proposal_only | 11,000 |\n| TerraLens Robotics | paid_deferred | 38,000 |\n\n**Badge handling (6 scans)**\n- TerraLens/Victor Hale, Mosaic/Eleni Costa → `sponsor_attendee` (create contact + member; excluded from lead import).\n- Crown Assembly/Lia Foster, DeltaForge Tools/Noah Kim → `qualified_non_sponsor_lead` (new account+contact+member).\n- Prairie Optics/Cam Ward → `qualified_non_sponsor_lead` (existing account → contact+member).\n- West Bay University/Ari Fox (student) → `excluded / non_business_badge`.\n\n**CRM gaps** — 5 members to create, 1 stale member to reconcile (TerraLens/Lia Foster, `previous_event`, opted‑out contact) → update to `excluded`; 2 sponsor contacts and 2 new lead accounts to create.\n\n**Other rollups** — unpaid sponsor follow‑up: Mosaic AI Works $24,000; qualified non‑sponsor opportunity total: 3 × $47,000 = $141,000; exclusions: 2 sponsor_attendee, 1 non_business_badge, 0 existing_disqualified, 0 missing_contact.\n\n## Assumptions worth flagging\n- **Prairie Optics** was classified as a qualified **non‑sponsor** lead: its order is `proposal_only` (not a confirmed sponsorship) and the badge is type `attendee`, even though it carries a sponsor proposal. Its CRM account already exists, so `crm_account_action = update_existing`.\n- **subject_key** = normalized (lowercase) contact email; digits‑only phone is used as the fallback when no email exists (DeltaForge/Noah Kim).\n- **unpaid sponsors** = accounts with an outstanding invoice balance (Mosaic only); proposal‑only Prairie is a sales, not finance, follow‑up.\n- Sponsor accounts with no package (other badge companies) were not emitted as `not_sponsor`, since the enum is reserved for canceled/no‑show orders.",
+          "passed": false,
+          "score": {
+            "scoring_points": [
+              {
+                "goal": "Correct sponsor status set and attendee/sponsor classification.",
+                "id": "SP001",
+                "passed": false,
+                "score": 0.0,
+                "weight": 3
+              },
+              {
+                "goal": "Correct campaign member create/update decisions, including stale CRM gap handling.",
+                "id": "SP002",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct unpaid sponsor follow-up account set and amount.",
+                "id": "SP003",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct new lead contact normalization and CRM create decisions.",
+                "id": "SP004",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct non-sponsor opportunity account set and total.",
+                "id": "SP005",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct lead and sponsor follow-up due dates.",
+                "id": "SP006",
+                "passed": true,
+                "score": 0.142857,
+                "weight": 2
+              },
+              {
+                "goal": "Correct exclusion reason counts and CRM gap summary.",
+                "id": "SP007",
+                "passed": false,
+                "score": 0.0,
+                "weight": 1
+              }
+            ],
+            "total_score": 0.142857
+          },
+          "error": null
+        },
+        {
+          "id": "test_005",
+          "content": "I've explored the HarborCRM API, built the plan, written it to `./answer.json`, and validated it against the template. Here's the summary.\n\n## Data gathered (show `bluetech_demo_2027`)\n\n**Exhibitors (5):**\n| company_id | company | booth | country | evidence |\n|---|---|---|---|---|\n| exh_bt_001 | Marlin Autonomous | D01 | Canada | builds AUVs + inspection ROVs |\n| exh_bt_002 | TideGlass Imaging | D05 | United States | OEM underwater camera maker |\n| exh_bt_003 | NorthChannel Robotics | D09 | Canada | modular ROVs w/ camera rails |\n| exh_bt_004 | PortSide Marine Sales | D12 | Canada | dealer/reseller of other brands |\n| exh_bt_005 | BlueChem Sensors | D16 | Germany | sensor-only chemistry probes |\n\n**Meeting interest (4):** Marlin 97, NorthChannel 91, TideGlass 86, PortSide 77 (all requested demo). BlueChem has none.\n\n## Decisions\n- **Target accounts = platform/product manufacturers** (3): the AUV/ROV, ROV+camera, and camera-OEM makers — ranked by meeting interest (Marlin → NorthChannel → TideGlass).\n- **Excluded = adjacent exhibitors** (2), preserved with reasons: PortSide (distributor_only) and BlueChem (sensor_only) — both `no_import`.\n- **CRM action:** all Bluetech target exhibitors have `crm_account_id: null` and no name/domain match against `/api/crm/accounts`, so there is **no existing-CRM overlap** → all `create_account`.\n- **Prioritization:** interest-score tiers (A ≥ 90, B 80–89) and interest-weighted pipeline estimates (score × $1,000, integer USD).\n\n## Result written to `answer.json`\n```\ntarget_account_count: 3      excluded_count: 2\nmeeting_interest_records_count: 4   qualified_meeting_count: 3   excluded_meeting_count: 1\nexisting_crm_overlap_count: 0       create 3 / update 0\ntotal_estimated_pipeline_usd: 274000  (97k + 91k + 86k)\nplatform_coverage: AUV 1, ROV 2, Underwater Camera 2\nproduct_fit: auv_rov_manufacturer 1, rov_camera_manufacturer 1, underwater_camera_oem 1\n```\n\nValidation confirmed: required top-level keys, exact enum values, contiguous ranks, ascending excluded-name ordering, enum-allowed CRM actions, integer pipeline values, and internal consistency (counts, platform/product tallies, and pipeline total all reconcile with the ranked list).\n\nNote: the platform had several unrelated entities (events, opportunities, invoices, campaign members) covering other shows — these are distractors and were not used for this Bluetech plan.",
+          "passed": false,
+          "score": {
+            "points": [
+              {
+                "goal": "Correct ranked BlueTech target-account order.",
+                "id": "SP001",
+                "pass": true,
+                "score": 0.214286,
+                "weight": 3
+              },
+              {
+                "goal": "Correct platform coverage and product-fit enums.",
+                "id": "SP002",
+                "pass": true,
+                "score": 0.214286,
+                "weight": 3
+              },
+              {
+                "goal": "Correct CRM action enum per target account.",
+                "id": "SP003",
+                "pass": true,
+                "score": 0.142857,
+                "weight": 2
+              },
+              {
+                "goal": "Correct exclusion of reseller and sensor-only accounts.",
+                "id": "SP004",
+                "pass": true,
+                "score": 0.142857,
+                "weight": 2
+              },
+              {
+                "goal": "Correct pipeline estimate and meeting counts.",
+                "id": "SP005",
+                "pass": false,
+                "score": 0.0,
+                "weight": 3
+              },
+              {
+                "goal": "Correct existing CRM overlap and update count.",
+                "id": "SP006",
+                "pass": true,
+                "score": 0.071429,
+                "weight": 1
+              }
+            ],
+            "total_score": 0.785714
+          },
+          "error": null
+        }
+      ],
+      "metrics": {
+        "mean_total_score": 0.48754980000000003,
+        "test_pass_rate": 0.0
+      }
+    },
+    "evolved": {
+      "train": [
+        {
+          "id": "train_001",
+          "content": "{\n  \"event_id\": \"neuralops_2026\",\n  \"event_name\": \"Summit NeuralOps 2026\",\n  \"sponsor_statuses\": [\n    {\n      \"account_id\": \"acct_atlas_grid\",\n      \"account_name\": \"Atlas Grid Analytics\",\n      \"status\": \"paid_deferred\",\n      \"package_amount\": 60000,\n      \"invoice_id\": \"inv_nops_1001\",\n      \"paid_amount\": 60000,\n      \"open_balance\": 0\n    },\n    {\n      \"account_id\": \"acct_bluepeak\",\n      \"account_name\": \"BluePeak Systems\",\n      \"status\": \"open_invoice\",\n      \"package_amount\": 35000,\n      \"invoice_id\": \"inv_nops_1002\",\n      \"paid_amount\": 10000,\n      \"open_balance\": 25000\n    },\n    {\n      \"account_id\": \"acct_copperline\",\n      \"account_name\": \"Copperline Robotics\",\n      \"status\": \"proposal_only\",\n      \"package_amount\": 18000,\n      \"invoice_id\": null,\n      \"paid_amount\": 0,\n      \"open_balance\": 0\n    }\n  ],\n  \"sponsor_revenue_totals\": {\n    \"paid_deferred\": 60000,\n    \"open_invoice\": 35000,\n    \"proposal_only\": 18000,\n    \"open_invoice_balance\": 25000\n  },\n  \"qualified_lead_accounts\": [\n    {\n      \"account_name\": \"HelioWare Manufacturing\",\n      \"account_id\": \"acct_helio_ware\",\n      \"primary_contact\": \"Dana Ruiz\",\n      \"normalized_email\": \"dana.ruiz@helioware.example\",\n      \"normalized_phone\": \"4155550188\",\n      \"crm_account_action\": \"update_existing\",\n      \"crm_contact_action\": \"create_contact\",\n      \"campaign_member_action\": \"add_campaign_member\",\n      \"opportunity_amount\": 42000\n    },\n    {\n      \"account_name\": \"Monarch Foods\",\n      \"account_id\": null,\n      \"primary_contact\": \"Kenji Sato\",\n      \"normalized_email\": \"kenji.sato@monarchfoods.example\",\n      \"normalized_phone\": \"12065550177\",\n      \"crm_account_action\": \"create_account\",\n      \"crm_contact_action\": \"create_contact\",\n      \"campaign_member_action\": \"add_campaign_member\",\n      \"opportunity_amount\": 42000\n    }\n  ],\n  \"lead_pipeline_total\": 84000,\n  \"excluded_records\": [\n    {\n      \"company_name\": \"Atlas Grid Analytics\",\n      \"contact_name\": \"Iris Stone\",\n      \"reason\": \"sponsor_attendee\"\n    },\n    {\n      \"company_name\": \"City College Robotics Lab\",\n      \"contact_name\": \"Nora Webb\",\n      \"reason\": \"non_business_badge\"\n    },\n    {\n      \"company_name\": \"Northstar Sensors\",\n      \"contact_name\": \"Priya Raman\",\n      \"reason\": \"inactive_sponsor_record\"\n    },\n    {\n      \"company_name\": \"Old Quarry Logistics\",\n      \"contact_name\": \"Rhea Moon\",\n      \"reason\": \"existing_disqualified\"\n    }\n  ],\n  \"follow_up\": {\n    \"lead_due_date\": \"2026-09-23\",\n    \"lead_task_count\": 2,\n    \"sponsor_finance_due_date\": \"2026-09-19\",\n    \"sponsor_finance_task_count\": 3,\n    \"sponsor_finance_accounts\": [\n      \"Atlas Grid Analytics\",\n      \"BluePeak Systems\",\n      \"Copperline Robotics\"\n    ]\n  },\n  \"crm_action_counts\": {\n    \"accounts_create\": 1,\n    \"accounts_update\": 1,\n    \"contacts_create\": 2,\n    \"contacts_update\": 0,\n    \"campaign_members_create\": 2,\n    \"campaign_members_update\": 0\n  }\n}",
+          "passed": null,
+          "score": {},
+          "error": null
+        },
+        {
+          "id": "train_002",
+          "content": "```json\n{\n  \"show_id\": \"marinesense_2026\",\n  \"campaign\": \"oem_dissolved_oxygen_sensor\",\n  \"qualified_exhibitors\": [\n    {\n      \"company_id\": \"exh_ms_001\",\n      \"company_name\": \"Abyssal Robotics\",\n      \"platforms\": [\"AUV\", \"ROV\"],\n      \"priority_tier\": \"A\",\n      \"booth\": \"A12\",\n      \"country\": \"Norway\",\n      \"website\": \"https://abyssalrobotics.example\"\n    },\n    {\n      \"company_id\": \"exh_ms_002\",\n      \"company_name\": \"KelpLine Cameras\",\n      \"platforms\": [\"Underwater Camera\"],\n      \"priority_tier\": \"B\",\n      \"booth\": \"B04\",\n      \"country\": \"Denmark\",\n      \"website\": \"https://kelplinecams.example\"\n    }\n  ],\n  \"excluded_near_misses\": [\n    {\n      \"company_id\": \"exh_ms_003\",\n      \"company_name\": \"Bluefin Dealer Group\",\n      \"exclusion_reason\": \"distributor_only\"\n    },\n    {\n      \"company_id\": \"exh_ms_005\",\n      \"company_name\": \"HarborLab Services\",\n      \"exclusion_reason\": \"service_only\"\n    },\n    {\n      \"company_id\": \"exh_ms_004\",\n      \"company_name\": \"Salinity Logic\",\n      \"exclusion_reason\": \"sensor_vendor_only\"\n    }\n  ],\n  \"aggregate_counts\": {\n    \"qualified_total\": 2,\n    \"platform_counts\": {\n      \"AUV\": 1,\n      \"ROV\": 1,\n      \"Underwater Camera\": 1\n    },\n    \"priority_counts\": {\n      \"A\": 1,\n      \"B\": 1,\n      \"C\": 0\n    },\n    \"excluded_near_misses_total\": 3\n  }\n}\n```",
+          "passed": null,
+          "score": {},
+          "error": null
+        },
+        {
+          "id": "train_003",
+          "content": "I prepared the `fall_webinar_import` batch and wrote the result to `./answer.json`. Here's what the reconciliation produced:\n\n**Pipeline applied**\n- **Normalize**: emails → trim + lowercase; phones → digits only.\n- **Remove unusable**: `fw_006` (blank email *and* phone) → `missing_contact`.\n- **Suppress**: match against the suppression list on email/phone → `fw_004` (global_opt_out) and `fw_007` (privacy_request).\n- **Deduplicate** by normalized email, keeping the higher-trust source (enum order: badge_scan > sponsor_form > partner_upload > webinar_form > exhibitor_form > manual_upload), then most recent `captured_at`, then higher `row_id`:\n  - `dana.ruiz@helioware.example` → winner **fw_002**, loser fw_001\n  - `evan.blake@quartzfoods.example` → winner **fw_008**, loser fw_003\n- **CRM match** by email domain: `helioware.example` → existing `acct_helio_ware` (update); Quartz/Monarch have no account (create).\n\n**Result**\n- `clean_contacts` (3, sorted): `fw_002` (HelioWare Mfg., update_existing → acct_helio_ware), `fw_005` (Monarch Foods, create_account), `fw_008` (Quartz Foods, create_account).\n- `duplicate_summary`: 2 removed — keys `dana.ruiz@helioware.example` (winner fw_002) and `evan.blake@quartzfoods.example` (winner fw_008).\n- `removal_summary`: unusable 1, suppressed 2, rows = fw_001/dup, fw_003/dup, fw_004/suppressed, fw_006/missing_contact, fw_007/suppressed.\n- `import_action_totals`: create_account 2, update_existing 1, no_import 0, suppress 0.\n- `campaign_member_import_count`: 3.\n\nThe set partitions cleanly: 3 cleaned contacts + 5 removed rows = 8 raw rows, all accounted for exactly once.\n\nFile: `benchmarks/results/gdpevo/workspaces/evolved/learning/workspace/answer.json` (validated against the template keys, item schemas, and sort orders).",
+          "passed": null,
+          "score": {},
+          "error": null
+        },
+        {
+          "id": "train_004",
+          "content": "Reconciliation complete and written to `./answer.json`.\n\n## Summary\n\n**Event** (`edgeai_field_2026`, \"EdgeAI Field Day 2026\", ended 2026-11-05)\n- `lead_followup_due_date` = 2026-11-10 (end + 5 days)\n- `sponsor_followup_due_date` = 2026-11-07 (end + 2 days)\n\n**Sponsor statuses** (from `/sponsor_packages` + `/finance/invoices`) — 3 accounts\n| Account | Status | Amount |\n|---|---|---|\n| Rivet AI Labs | paid_deferred | 32000 |\n| SignalForge Industrial | open_invoice | 21000 |\n| VectorQuay Automation | proposal_only | 9000 |\n\n**Badge decisions** (5 scans) — Rivet = sponsor_attendee (already correct, `no_action`); Tundra Port Systems & Glassfield Power = new qualified leads → `create_account_contact_campaign_member`; VectorQuay (existing account, no contact) → `create_contact_campaign_member`; Open Press Wire (press) = excluded/`non_business_badge`/`no_import`.\n\n**Campaign member actions** (6 subjects = badge-derived ∪ existing edgeai members): 3 creates (Tundra, Glassfield, VectorQuay → `attended`), 2 no-ops (Rivet `attended_sponsor`, SignalForge `registered_sponsor`), 1 `no_import` (`excluded`).\n\n**Opportunity summary** — qualified non-sponsor accounts: Glassfield Power, Tundra Port Systems, VectorQuay Automation; `lead_opportunity_amount_usd` = 36000; no open opportunities (0 total / 0 count).\n\n**Sponsor follow-up** — unpaid: SignalForge Industrial + VectorQuay Automation = **30000**, due 2026-11-07.\n\n**Badge-only contacts** (normalized) — Glassfield Power / Amir Qureshi → email `\"\"`, phone `15125550121`; Tundra Port Systems / Marta Novak → `marta.novak@tundraport.example`, `19075550108`.\n\n**Exclusion counts** — sponsor_attendee: 1, non_business_badge: 1, existing_disqualified: 0, missing_contact: 0.\n\nNotes on judgment calls: `sponsor_statuses` is keyed by `account_id`, so it covers only CRM-linked sponsor-pipeline accounts (badge-only companies without an account_id are excluded). VectorQuay carries only a proposal (unconfirmed order) and an *attendee* badge, so it is handled as a non-sponsor lead rather than a confirmed sponsor attendee; it therefore also appears among the unpaid sponsorship follow-ups.",
+          "passed": null,
+          "score": {},
+          "error": null
+        },
+        {
+          "id": "train_005",
+          "content": "I solved the task by querying the HarborCRM API, applying the prospecting policy, and writing the result to `./answer.json`.\n\n## What the data showed\n\n**AquaFarm Robotics Forum 2026 exhibitors (5):**\n| Company | Description | Verdict |\n|---|---|---|\n| ReefWorks Robotics | Manufactures pen-cleaning ROVs w/ camera arrays | Qualified (ROV) — already CRM (`acct_reefworks`) |\n| Pelagic Droneworks | Builds autonomous AUV scouts, OEM payloads | Qualified (AUV) — not in CRM |\n| ClearPen Optics | OEM underwater camera manufacturer | Qualified (Underwater Camera) — not in CRM |\n| FarmGate Analytics | Analytics dashboards from partner ROV feeds, **no hardware** | Excluded (service) |\n| SouthPier Robotics Supply | Regional **reseller**/dealer of imported ROVs | Excluded (distributor) |\n\nPlatform coverage is taken from what each exhibitor *builds* (ReefWorks' camera arrays are a feature of its ROV, not a camera platform it manufactures), matching how the sibling shows label their multi-platform builders explicitly (\"AUVs **and** ROVs\").\n\n**Ranking** (demo → interest score → coverage → name) and **tiers** (A≥90 demo, B≥80 demo, else C):\n\n| Rank | Company | Demo | Score | Platforms | Tier | $ |\n|---|---|---|---|---|---|---|\n| 1 | ReefWorks Robotics | ✓ | 93 | ROV | A | 120,000 |\n| 2 | Pelagic Droneworks | ✓ | 88 | AUV | B | 90,000 |\n| 3 | ClearPen Optics | ✗ | 64 | Underwater Camera | C | 50,000 |\n\n- CRM actions: ReefWorks → `update_existing`; Pelagic & ClearPen → `create_account`\n- Exclusions (name ascending): FarmGate Analytics (`service_provider`/`service_only`), SouthPier Robotics Supply (`distributor`/`distributor_only`), both `no_import`\n\n## Answer written to `./answer.json`\n\n```json\n{\n  \"show_id\": \"aquafarm_robotics_2026\",\n  \"summary\": {\n    \"qualified_lead_count\": 3,\n    \"excluded_count\": 2,\n    \"existing_crm_overlap_count\": 1,\n    \"existing_crm_overlap_account_ids\": [\"acct_reefworks\"],\n    \"total_estimated_opportunity_usd\": 260000,\n    \"platform_coverage_counts\": { \"AUV\": 1, \"ROV\": 1, \"Underwater Camera\": 1 }\n  },\n  \"ranked_leads\": [\n    { \"rank\": 1, \"company_id\": \"exh_af_001\", \"company_name\": \"ReefWorks Robotics\", \"booth\": \"R10\", \"country\": \"Australia\", \"website\": \"https://reefworks.example\", \"platforms\": [\"ROV\"], \"crm_account_id\": \"acct_reefworks\", \"crm_action\": \"update_existing\", \"requested_demo\": true, \"interest_score\": 93, \"priority_tier\": \"A\", \"opportunity_estimate_usd\": 120000 },\n    { \"rank\": 2, \"company_id\": \"exh_af_002\", \"company_name\": \"Pelagic Droneworks\", \"booth\": \"R14\", \"country\": \"New Zealand\", \"website\": \"https://pelagicdroneworks.example\", \"platforms\": [\"AUV\"], \"crm_account_id\": null, \"crm_action\": \"create_account\", \"requested_demo\": true, \"interest_score\": 88, \"priority_tier\": \"B\", \"opportunity_estimate_usd\": 90000 },\n    { \"rank\": 3, \"company_id\": \"exh_af_003\", \"company_name\": \"ClearPen Optics\", \"booth\": \"R21\", \"country\": \"Japan\", \"website\": \"https://clearpenoptics.example\", \"platforms\": [\"Underwater Camera\"], \"crm_account_id\": null, \"crm_action\": \"create_account\", \"requested_demo\": false, \"interest_score\": 64, \"priority_tier\": \"C\", \"opportunity_estimate_usd\": 50000 }\n  ],\n  \"excluded_exhibitors\": [\n    { \"company_id\": \"exh_af_004\", \"company_name\": \"FarmGate Analytics\", \"relationship_type\": \"service_provider\", \"exclusion_reason\": \"service_only\", \"crm_action\": \"no_import\" },\n    { \"company_id\": \"exh_af_005\", \"company_name\": \"SouthPier Robotics Supply\", \"relationship_type\": \"distributor\", \"exclusion_reason\": \"distributor_only\", \"crm_action\": \"no_import\" }\n  ]\n}\n```\n\nValidated against the template: all required top-level/summary/object keys present, ranks 1–3 contiguous, enums correct, excluded list sorted by company name, and total opportunity = 260000.",
+          "passed": null,
+          "score": {},
+          "error": null
+        }
+      ],
+      "review": {
+        "requested": true,
+        "completed": true,
+        "review_id": "evo_8b0d4218a0a54d40",
+        "changed_files": [
+          "memory/MEMORY.md"
+        ]
+      },
+      "promoted_changes": [
+        "memory/MEMORY.md"
+      ],
+      "test": [
+        {
+          "id": "test_001",
+          "content": "```json\n{\n  \"task_id\": \"test_001\",\n  \"event\": {\n    \"event_id\": \"predictive_ops_2027\",\n    \"event_name\": \"Predictive Ops Summit 2027\",\n    \"lead_followup_due_date\": \"2027-04-01\",\n    \"sponsor_finance_due_date\": \"2027-03-28\"\n  },\n  \"sponsor_statuses\": [\n    {\n      \"account_id\": \"acct_fathom_ops\",\n      \"account_name\": \"Fathom Ops\",\n      \"status\": \"paid_deferred\",\n      \"package_amount\": 72000,\n      \"invoice_ids\": [\"inv_pops_3001\"],\n      \"paid_amount\": 72000,\n      \"open_balance\": 0\n    },\n    {\n      \"account_id\": \"acct_lumina_mfg\",\n      \"account_name\": \"Lumina Manufacturing\",\n      \"status\": \"open_invoice\",\n      \"package_amount\": 42000,\n      \"invoice_ids\": [\"inv_pops_3002a\", \"inv_pops_3002b\"],\n      \"paid_amount\": 26000,\n      \"open_balance\": 16000\n    },\n    {\n      \"account_id\": \"acct_orbitrail\",\n      \"account_name\": \"OrbitRail Systems\",\n      \"status\": \"proposal_only\",\n      \"package_amount\": 22000,\n      \"invoice_ids\": [],\n      \"paid_amount\": 0,\n      \"open_balance\": 0\n    }\n  ],\n  \"sponsor_revenue_totals\": {\n    \"paid_deferred\": 72000,\n    \"open_invoice\": 42000,\n    \"proposal_only\": 22000,\n    \"open_invoice_balance\": 16000\n  },\n  \"lead_opportunity_plan\": {\n    \"qualified_lead_accounts\": [\n      {\n        \"account_name\": \"Cascadia Steel\",\n        \"account_id\": null,\n        \"primary_contact\": \"Miles Chen\",\n        \"normalized_email\": \"miles.chen@cascadiasteel.example\",\n        \"normalized_phone\": \"5035550114\",\n        \"crm_account_action\": \"create_account\",\n        \"crm_contact_action\": \"create_contact\",\n        \"campaign_member_action\": \"add_campaign_member\",\n        \"opportunity_amount\": 51000\n      },\n      {\n        \"account_name\": \"Riverbend Chemical\",\n        \"account_id\": \"acct_riverbend_chem\",\n        \"primary_contact\": \"Hana Park\",\n        \"normalized_email\": \"hana.park@riverbendchem.example\",\n        \"normalized_phone\": \"17135550138\",\n        \"crm_account_action\": \"update_existing\",\n        \"crm_contact_action\": \"update_existing\",\n        \"campaign_member_action\": \"update_campaign_member\",\n        \"opportunity_amount\": 51000\n      }\n    ],\n    \"lead_pipeline_total\": 102000,\n    \"average_deal_size\": 51000.00\n  },\n  \"excluded_records\": [\n    {\n      \"company_name\": \"Fathom Ops\",\n      \"contact_name\": \"Cole Ivers\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"sponsor_attendee\"\n    },\n    {\n      \"company_name\": \"Fathom Ops\",\n      \"contact_name\": \"Sofia Meyer\",\n      \"source\": \"campaign_member\",\n      \"reason\": \"stale_crm_duplicate\"\n    },\n    {\n      \"company_name\": \"Keystone AGV\",\n      \"contact_name\": \"Anika Shah\",\n      \"source\": \"sponsor_package\",\n      \"reason\": \"inactive_sponsor_record\"\n    },\n    {\n      \"company_name\": \"Lumina Manufacturing\",\n      \"contact_name\": \"Nadia Volk\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"sponsor_attendee\"\n    },\n    {\n      \"company_name\": \"Old Quarry Logistics\",\n      \"contact_name\": \"Rhea Moon\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"existing_disqualified\"\n    },\n    {\n      \"company_name\": \"Pacific Robotics Review\",\n      \"contact_name\": \"Dev Singh\",\n      \"source\": \"badge_scan\",\n      \"reason\": \"non_business_badge\"\n    }\n  ],\n  \"follow_up\": {\n    \"lead_due_date\": \"2027-04-01\",\n    \"lead_task_count\": 2,\n    \"sponsor_finance_due_date\": \"2027-03-28\",\n    \"sponsor_finance_task_count\": 2,\n    \"sponsor_finance_accounts\": [\"Lumina Manufacturing\", \"OrbitRail Systems\"]\n  },\n  \"crm_action_counts\": {\n    \"accounts_create\": 1,\n    \"accounts_update\": 1,\n    \"contacts_create\": 1,\n    \"contacts_update\": 1,\n    \"campaign_members_create\": 1,\n    \"campaign_members_update\": 1\n  }\n}\n```",
+          "passed": false,
+          "score": {
+            "earned_score": 14,
+            "max_score": 16,
+            "points": [
+              {
+                "id": "SP001",
+                "label": "sponsor_status_set",
+                "max_score": 3,
+                "passed": true,
+                "score": 3
+              },
+              {
+                "id": "SP002",
+                "label": "sponsor_revenue_totals",
+                "max_score": 2,
+                "passed": false,
+                "score": 0
+              },
+              {
+                "id": "SP003",
+                "label": "qualified_non_sponsor_leads",
+                "max_score": 3,
+                "passed": true,
+                "score": 3
+              },
+              {
+                "id": "SP004",
+                "label": "excluded_records",
+                "max_score": 2,
+                "passed": true,
+                "score": 2
+              },
+              {
+                "id": "SP005",
+                "label": "lead_pipeline_total_and_average",
+                "max_score": 2,
+                "passed": true,
+                "score": 2
+              },
+              {
+                "id": "SP006",
+                "label": "follow_up_due_dates_and_counts",
+                "max_score": 3,
+                "passed": true,
+                "score": 3
+              },
+              {
+                "id": "SP007",
+                "label": "crm_action_counts",
+                "max_score": 1,
+                "passed": true,
+                "score": 1
+              }
+            ],
+            "total_score": 0.875
+          },
+          "error": null
+        },
+        {
+          "id": "test_002",
+          "content": "Answer written to `./answer.json` (validated against the template: all required keys, enum values, sort orders, integer types, and every derived total equals the sum of its parts).\n\n## What I did\n\n**Sources (HarborCRM @ http://127.0.0.1:9001):** `/api/tradeshows/nordic_aqua_2027` + `/exhibitors` + `/meeting_interest`, `/api/crm/accounts`, and `/api/policies`. The show has 5 exhibitors and 3 meeting-interest records.\n\n**Qualification rule (from `policies.prospecting.qualification_note` + exhibitor descriptions):**\n- Qualified = exhibitor that *builds* a target underwater platform (AUV / ROV / Underwater Camera) **and** showed meeting interest.\n- Near misses = exhibitors only *adjacent* to the target platforms.\n\n**Results**\n\n| Company | Platforms | Tier | CRM action | Pipeline |\n|---|---|---|---|---|\n| FjordCam OEM | Underwater Camera | C | create_account | 72,000 |\n| LakeHealth Robotics | AUV | A | update_existing | 92,000 |\n| Nordic Subsea Systems | AUV, ROV | A | update_existing (customer) | 90,000 |\n\nExcluded near misses: **AquaSense Nordic** (`sensor_vendor_only` — sensor vendor, no platform build) and **Arctic ROV Rentals** (`service_only` — rents/services third-party ROVs).\n\n**Inferred rules** (unstated in the materials, applied consistently): `crm_action` follows the exhibitor's `crm_account_id` (null → `create_account`, present → `update_existing`); `priority_tier` from `meeting_interest.interest_score` (A ≥ 90, B 75–89, C < 75); `pipeline_estimate_usd` = interest score × 1000 (i.e., interest likelihood × a $100k standard integration deal).\n\n**Aggregate counts:** qualified_total 3 · platform_counts {AUV 2, ROV 1, Underwater Camera 1} · priority_counts {A 2, B 0, C 1} · near-misses 2 · create 1 / update 2 · CRM overlap 2 (`acct_lakehealth`, `acct_nordic_subsea`) · total pipeline **$254,000**.",
+          "passed": false,
+          "score": {
+            "points": [
+              {
+                "goal": "Correct qualified exhibitor set for Nordic Aquaculture Tech.",
+                "id": "SP001",
+                "passed": true,
+                "score": 0.136364,
+                "weight": 3
+              },
+              {
+                "goal": "Correct platform labels for each qualified exhibitor.",
+                "id": "SP002",
+                "passed": true,
+                "score": 0.136364,
+                "weight": 3
+              },
+              {
+                "goal": "Correct booth, country, and website enrichment.",
+                "id": "SP003",
+                "passed": true,
+                "score": 0.090909,
+                "weight": 2
+              },
+              {
+                "goal": "Correct exclusion of service-only and sensor-only near misses.",
+                "id": "SP004",
+                "passed": true,
+                "score": 0.090909,
+                "weight": 2
+              },
+              {
+                "goal": "Correct priority tier assignment.",
+                "id": "SP005",
+                "passed": true,
+                "score": 0.090909,
+                "weight": 2
+              },
+              {
+                "goal": "Correct platform, priority, qualified, and exclusion aggregate counts.",
+                "id": "SP006",
+                "passed": false,
+                "score": 0.0,
+                "weight": 1
+              },
+              {
+                "goal": "Correct CRM action and existing account id per qualified exhibitor.",
+                "id": "SP007",
+                "passed": true,
+                "score": 0.136364,
+                "weight": 3
+              },
+              {
+                "goal": "Correct pipeline estimate per qualified exhibitor.",
+                "id": "SP008",
+                "passed": false,
+                "score": 0.0,
+                "weight": 3
+              },
+              {
+                "goal": "Correct CRM overlap and total estimated pipeline rollup.",
+                "id": "SP009",
+                "passed": false,
+                "score": 0.0,
+                "weight": 3
+              }
+            ],
+            "total_score": 0.681818
+          },
+          "error": null
+        },
+        {
+          "id": "test_003",
+          "content": "Done. `answer.json` is written to the workspace root and passes the template's structural and consistency checks.\n\n## What I did\n\nPulled the batch metadata, raw contacts, suppression list, CRM accounts/contacts, and policies from the HarborCRM API (single read pass, no route scanning).\n\n**Batch**: `q1_partner_import` → campaign `PARTNER-Q1-2027`, source system `partner_and_manual_upload`.\n\n**Interpretation applied** (stated per the task's requirement to infer unstated rules):\n- Normalize: emails trimmed + lowercased; phones digits-only.\n- Removals first: suppression match → `suppressed`; no email **and** no phone → `missing_contact`.\n- Dedup rule: highest-trust `source_name` wins, then most recent `captured_at`, then lowest `row_id`. Trust order taken from the template's `source_name` enum (`badge_scan > sponsor_form > partner_upload > webinar_form > exhibitor_form > manual_upload`).\n- Dedup key: `email:<normalized>` when present, else `phone_company:<phone>:<company>`.\n- Account/contact match by email domain → `existing_account_id`/`existing_contact_id`; else `create_account`.\n- `import_action_totals` classifies every input row, so duplicate losers count as `no_import` (sum = 8 raw rows).\n\n## Result summary\n\n| Outcome | Rows |\n|---|---|\n| clean (imported) | `q1_001` (Hana Park ↔ update acct_riverbend_chem/cont_hana_park), `q1_003` (Pia Norberg ↔ update acct_lakehealth), `q1_004` (Noah Kim → create), `q1_008` (Miles Chen → create) |\n| duplicate removed | `q1_002` (lost to `q1_001`), `q1_007` (lost to `q1_008`) |\n| missing_contact | `q1_005` |\n| suppressed | `q1_006` (Lia Foster in suppression list) |\n\n- `clean_contacts`: 4 entries, sorted by id (`q1_001, q1_003, q1_004, q1_008`).\n- `duplicate_summary`: 2 keys — `email:hana.park@riverbendchem.example`, `email:miles.chen@cascadiasteel.example`.\n- `removal_summary`: 4 removed rows (2 duplicate, 1 missing_contact, 1 suppressed).\n- `import_action_totals`: create_account 2, update_existing 2, no_import 3, suppress 1.\n- `campaign_member_import`: count 4, source_label `partner_and_manual_upload`.\n\nTwo judgment calls worth flagging: the duplicate winner for the Hana Park pair (higher-trust `partner_upload` `q1_001` over the more-recent `manual_upload` `q1_002` — this also matches the existing CRM contact's phone), and counting duplicate losers under `no_import` so the action totals partition all 8 rows.",
+          "passed": false,
+          "score": {
+            "earned_points": 5,
+            "points": [
+              {
+                "id": "SP001",
+                "label": "Correct surviving cleaned contact IDs in order.",
+                "passed": false,
+                "score": 0,
+                "weight": 3
+              },
+              {
+                "id": "SP002",
+                "label": "Correct normalized email and phone values for key contacts.",
+                "passed": false,
+                "score": 0,
+                "weight": 3
+              },
+              {
+                "id": "SP003",
+                "label": "Correct duplicate resolution winners.",
+                "passed": false,
+                "score": 0,
+                "weight": 2
+              },
+              {
+                "id": "SP004",
+                "label": "Correct suppression and unusable removal counts.",
+                "passed": true,
+                "score": 2,
+                "weight": 2
+              },
+              {
+                "id": "SP005",
+                "label": "Correct create/update/no-import counts.",
+                "passed": true,
+                "score": 2,
+                "weight": 2
+              },
+              {
+                "id": "SP006",
+                "label": "Correct campaign member count and source label.",
+                "passed": true,
+                "score": 1,
+                "weight": 1
+              }
+            ],
+            "total_points": 13,
+            "total_score": 0.384615
+          },
+          "error": null
+        },
+        {
+          "id": "test_004",
+          "content": "The answer is written and validated. Here's the reconciliation I produced for **Industrial Vision AI Forum 2027** (`answer.json` at the workspace root, matching `input/payloads/answer_template.json`).\n\n**What I pulled from the API** (base `http://127.0.0.1:9001`): `/api/policies`, `/api/events` (event def), `/api/events/industrial_vision_2027/{orders,badges,sponsor_packages}`, `/api/finance/invoices?event_id=…`, `/api/crm/{accounts,contacts,opportunities,campaign_members}`.\n\n**Decisions and the rules behind them**\n- **event / due dates** — end `2027-05-19`; lead follow-up = +6d → `2027-05-25`; sponsor follow-up = +3d → `2027-05-22`.\n- **sponsor_statuses** (3 order accounts, name-sorted): TerraLens `paid_deferred` $38,000 (invoice paid/deferred); Mosaic `open_invoice` $24,000 (confirmed, unpaid); Prairie `proposal_only` $11,000 (proposal_sent, no invoice). No `not_sponsor` (no canceled/no-show orders this event).\n- **badge_decisions** (6, by badge id): the two `sponsor` badges → `sponsor_attendee`; the two attendee badges at existing lead companies (Crown Assembly, Prairie Optics) → `qualified_non_sponsor_lead`; DeltaForge → `excluded/missing_contact` (no email); West Bay (student) → `excluded/non_business_badge`.\n- **campaign_member_actions** (5): create members for Victor Hale & Eleni Costa (`attended_sponsor`), Lia Foster (Crown Assembly) & Cam Ward (`attended`); update the existing stale TerraLens/Lia Foster member (`previous_event`, opted-out contact) → `excluded`.\n- **new_lead_contacts** (2): Crown Assembly/Lia Foster (new account+contact) and Prairie Optics/Cam Ward (existing prospect account, new contact), emails lowercased, phones digits-only.\n- **opportunity_summary** — leads generate open opportunities at the event's `lead_opportunity_amount` ($47,000): 2 × 47,000 = $94,000.\n- **sponsor_followup** — unpaid sponsor = Mosaic AI Works ($24,000 open invoice), due `2027-05-22`.\n- **crm_gap_summary** — 2 sponsor contacts to create, 1 new lead account to create, 4 campaign members to create, 1 to update, 1 stale key.\n- **exclusion_counts** — sponsor_attendee 2, non_business_badge 1, missing_contact 1, existing_disqualified 0.\n\nValidated: exactly the 9 required top-level keys, all enums allowed, required sort orders, integer USD fields, and exclusion counts consistent with badge exclusion reasons.\n\nOne judgment call worth flagging: the template doesn't fix a `subject_key` encoding, so I used `\"<account_name>:<contact_name>\"` consistently for both `subject_key` and `stale_campaign_member_keys`.",
+          "passed": false,
+          "score": {
+            "scoring_points": [
+              {
+                "goal": "Correct sponsor status set and attendee/sponsor classification.",
+                "id": "SP001",
+                "passed": false,
+                "score": 0.0,
+                "weight": 3
+              },
+              {
+                "goal": "Correct campaign member create/update decisions, including stale CRM gap handling.",
+                "id": "SP002",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct unpaid sponsor follow-up account set and amount.",
+                "id": "SP003",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct new lead contact normalization and CRM create decisions.",
+                "id": "SP004",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct non-sponsor opportunity account set and total.",
+                "id": "SP005",
+                "passed": false,
+                "score": 0.0,
+                "weight": 2
+              },
+              {
+                "goal": "Correct lead and sponsor follow-up due dates.",
+                "id": "SP006",
+                "passed": true,
+                "score": 0.142857,
+                "weight": 2
+              },
+              {
+                "goal": "Correct exclusion reason counts and CRM gap summary.",
+                "id": "SP007",
+                "passed": false,
+                "score": 0.0,
+                "weight": 1
+              }
+            ],
+            "total_score": 0.142857
+          },
+          "error": null
+        },
+        {
+          "id": "test_005",
+          "content": "The verification confirms every derived field reconciles with the live data. Here is how the plan was built and what it says.\n\n## What the HarborCRM data showed\n\n`BlueTech Demo Day 2027` (`bluetech_demo_2027`, Halifax) has **5 exhibitors** and **4 meeting-interest records**. Neither the exhibitors' `crm_account_id` field nor exhibitor name/website-domain matching against `/api/crm/accounts` produced any overlap, so none of the target accounts already exist in the CRM.\n\n**Qualified target accounts (platform builders):**\n\n| Rank | Company | Booth | Platforms | product_fit | Demo | Score |\n|---|---|---|---|---|---|---|\n| 1 | Marlin Autonomous | D01 | AUV, ROV | `auv_rov_manufacturer` | yes | 97 |\n| 2 | NorthChannel Robotics | D09 | ROV | `rov_camera_manufacturer` | yes | 91 |\n| 3 | TideGlass Imaging | D05 | Underwater Camera | `underwater_camera_oem` | yes | 86 |\n\n**Adjacent exhibitors (exclusion list, `no_import`):**\n- **BlueChem Sensors** — sensor-only chemistry probes → `sensor_vendor` / `sensor_only`\n- **PortSide Marine Sales** — brand dealer/reseller → `distributor` / `distributor_only`\n\n## Rules applied (all from the shared API evidence)\n\n- **Target vs. adjacent:** the `prospecting.qualification_note` in `/api/policies` — an exhibitor is a target only if it *builds* a target underwater platform (AUV / ROV / Underwater Camera); dealers, sensor-only, and service companies are adjacent.\n- **interest_score:** taken directly from the show's `/api/tradeshows/bluetech_demo_2027/meeting_interest` record (null if absent).\n- **priority_tier:** A ≥ 90, B ≥ 75, C otherwise → Marlin/NorthChannel = A, TideGlass = B.\n- **pipeline_estimate_usd:** interest_score × 1000 → 97,000 / 91,000 / 86,000, keeping integer USD values as required.\n- **CRM action:** no overlap → `create_account` for the three targets; adjacent exhibitors are `no_import`.\n\n## Result\n\nWritten to `./answer.json` (schema `test_005_bluetech_demo_target_account_plan`). It passes a schema/consistency audit: all required keys present, allowed enums only, `platforms` ordered AUV→ROV→Underwater Camera, ranks 1..3 contiguous, excluded list sorted by `company_name`, and every summary total equals the sum of its parts —\n\n- `target_account_count` 3, `excluded_count` 2, `meeting_interest_records_count` 4\n- `qualified_meeting_count` 3, `excluded_meeting_count` 1\n- `existing_crm_overlap_count` 0, `create_account_count` 3, `update_existing_count` 0\n- `total_estimated_pipeline_usd` **274,000**\n- `platform_coverage_counts` {AUV 1, ROV 2, Underwater Camera 1}; `product_fit_counts` {auv_rov 1, rov_camera 1, camera_oem 1}\n\nOne judgment call to flag: the template does not define a pipeline formula, so I used the interest score × 1000 (the meeting-interest evidence) as the integer USD estimate — the totals stay internally consistent regardless of scale.",
+          "passed": false,
+          "score": {
+            "points": [
+              {
+                "goal": "Correct ranked BlueTech target-account order.",
+                "id": "SP001",
+                "pass": true,
+                "score": 0.214286,
+                "weight": 3
+              },
+              {
+                "goal": "Correct platform coverage and product-fit enums.",
+                "id": "SP002",
+                "pass": false,
+                "score": 0.0,
+                "weight": 3
+              },
+              {
+                "goal": "Correct CRM action enum per target account.",
+                "id": "SP003",
+                "pass": true,
+                "score": 0.142857,
+                "weight": 2
+              },
+              {
+                "goal": "Correct exclusion of reseller and sensor-only accounts.",
+                "id": "SP004",
+                "pass": true,
+                "score": 0.142857,
+                "weight": 2
+              },
+              {
+                "goal": "Correct pipeline estimate and meeting counts.",
+                "id": "SP005",
+                "pass": false,
+                "score": 0.0,
+                "weight": 3
+              },
+              {
+                "goal": "Correct existing CRM overlap and update count.",
+                "id": "SP006",
+                "pass": true,
+                "score": 0.071429,
+                "weight": 1
+              }
+            ],
+            "total_score": 0.571429
+          },
+          "error": null
+        }
+      ],
+      "metrics": {
+        "mean_total_score": 0.5311438,
+        "test_pass_rate": 0.0
+      }
+    }
+  },
+  "comparison": {
+    "test_score_lift": 0.043594
+  }
+}

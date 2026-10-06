@@ -218,6 +218,19 @@ class RuntimeClient:
         )
         return snapshot_from_session(self._loop.sessions.get_or_create(session_key))
 
+    async def run_evolution_review(
+        self,
+        scope: str | None = None,
+        *,
+        force: bool = False,
+    ) -> object | None:
+        """Review queued Memory/Skill evidence for this runtime's workspace."""
+        return await self._loop.run_evolution_review(
+            self._loop.workspace,
+            scope,
+            force=force,
+        )
+
     async def compact_idle_session(self, session_key: str, *, max_suffix: int = 0) -> str | None:
         """Return a replacement summary; legacy ``max_suffix`` no longer retains history."""
         session = self._loop.sessions.get_or_create(session_key)
