@@ -64,7 +64,8 @@ def test_gdpevo_adapter_writes_auditable_train_test_plan(tmp_path: Path) -> None
     }
     saved = json.loads(output.read_text(encoding="utf-8"))
     assert saved["train"][0]["id"] == "train_001"
-    assert saved["test"][0]["private_evaluator_path"].endswith("test_tasks/001/eval/eval.sh")
+    evaluator_path = Path(saved["test"][0]["private_evaluator_path"])
+    assert evaluator_path.parts[-4:] == ("test_tasks", "001", "eval", "eval.sh")
 
 
 def test_gdpevo_adapter_rejects_existing_solver_workspace(tmp_path: Path) -> None:
