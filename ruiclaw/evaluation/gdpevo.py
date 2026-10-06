@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, cast
@@ -132,9 +133,14 @@ def score_answer(task: GDPevoTask, answer_path: Path, *, timeout_seconds: int = 
     answer_path = answer_path.expanduser().resolve()
     if not answer_path.is_file():
         return {"passed": False, "error": f"answer file not found: {answer_path}"}
+    command = [str(task.evaluator_path), str(answer_path)]
+    if task.evaluator_path.suffix == ".sh":
+        command.insert(0, "bash")
+    elif task.evaluator_path.suffix == ".py":
+        command.insert(0, sys.executable)
     try:
         completed = subprocess.run(
-            [str(task.evaluator_path), str(answer_path)],
+            command,
             cwd=task.evaluator_path.parent,
             capture_output=True,
             check=False,
