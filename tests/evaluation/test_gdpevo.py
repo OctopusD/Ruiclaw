@@ -6,6 +6,7 @@ from stat import S_IXUSR
 
 import pytest
 
+from ruiclaw.evaluation import gdpevo
 from ruiclaw.evaluation.gdpevo import (
     load_task_group,
     score_answer,
@@ -85,6 +86,20 @@ def test_gdpevo_adapter_scores_with_private_evaluator(tmp_path: Path) -> None:
     result = score_answer(group.test_tasks[0], answer)
 
     assert result == {"passed": True, "result": {"total_score": 1.0}}
+
+
+def test_gdpevo_adapter_uses_git_bash_on_windows(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    git_root = tmp_path / "Git"
+    git = git_root / "cmd" / "git.exe"
+    bash = git_root / "bin" / "bash.exe"
+    git.parent.mkdir(parents=True)
+    bash.parent.mkdir(parents=True)
+    git.touch()
+    bash.touch()
+    monkeypatch.setattr(gdpevo.sys, "platform", "win32")
+    monkeypatch.setattr(gdpevo.shutil, "which", lambda executable: str(git))
+
+    assert gdpevo._bash_executable() == str(bash)
 
 
 def test_gdpevo_report_includes_self_accuracy_and_lift() -> None:

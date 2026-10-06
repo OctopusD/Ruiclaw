@@ -133,12 +133,8 @@ def score_answer(task: GDPevoTask, answer_path: Path, *, timeout_seconds: int = 
     answer_path = answer_path.expanduser().resolve()
     if not answer_path.is_file():
         return {"passed": False, "error": f"answer file not found: {answer_path}"}
-    command = [str(task.evaluator_path), str(answer_path)]
-    if task.evaluator_path.suffix == ".sh":
-        command.insert(0, "bash")
-    elif task.evaluator_path.suffix == ".py":
-        command.insert(0, sys.executable)
     try:
+        command = _evaluator_command(task.evaluator_path, answer_path)
         completed = subprocess.run(
             command,
             cwd=task.evaluator_path.parent,
@@ -164,6 +160,29 @@ def score_answer(task: GDPevoTask, answer_path: Path, *, timeout_seconds: int = 
     score = value.get("total_score")
     passed = isinstance(score, int | float) and not isinstance(score, bool) and score == 1.0
     return {"passed": passed, "result": value}
+
+
+def _evaluator_command(evaluator_path: Path, answer_path: Path) -> list[str]:
+    command = [str(evaluator_path), str(answer_path)]
+    if evaluator_path.suffix == ".sh":
+        command.insert(0, _bash_executable())
+    elif evaluator_path.suffix == ".py":
+        command.insert(0, sys.executable)
+    return command
+
+
+def _bash_executable() -> str:
+    if sys.platform != "win32":
+        return shutil.which("bash") or "bash"
+
+    git = shutil.which("git")
+    if git is not None:
+        for parent in Path(git).parents:
+            for relative in (Path("bin/bash.exe"), Path("usr/bin/bash.exe")):
+                candidate = parent / relative
+                if candidate.is_file():
+                    return str(candidate)
+    raise OSError("Git Bash is required to run GDPevo shell evaluators on Windows")
 
 
 def _load_tasks(
