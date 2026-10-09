@@ -8,6 +8,7 @@
 .orion
 .ruiclaw/
 .nanobot/
+/ruiclaw.md
 
 # Local workspace state created when RuiClaw uses this checkout as its workspace.
 /HEARTBEAT.md
